@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import logo from '../assets/images/fas-logo.svg';
 import fileUploadIcon from '../assets/images/file-upload.svg';
 import userIcon from '../assets/images/user.svg';
 import logoutIcon from '../assets/images/logout.svg';
+import { UploadContext } from '../context/UploadContext'; 
+
 const TopBarContainer = styled.div`
     position: fixed;
     top: 0;
@@ -49,14 +51,47 @@ const Username = styled.span`
     font-size: 20px;
     font-family: 'Inter';
 `;
+
+const FileInput = styled.input`
+    display: none;
+`;
+
 const TopBar = () => {
+    const { handleFolderUpload } = useContext(UploadContext); // Context에서 업로드 핸들러 가져오기
+
+    const onFolderSelect = (event) => {
+        const files = Array.from(event.target.files);
+        
+        if (!files || files.length === 0) {
+            console.warn("No files selected");
+            return;
+        }
+        
+        if (typeof handleFolderUpload === 'function') {
+            handleFolderUpload(files); // 폴더 선택 시 파일을 업로드 핸들러에 전달
+        } else {
+            console.error("handleFolderUpload is not a function or undefined.");
+        }
+    };
+
     return (
         <TopBarContainer>
             <TopBarLeft>
                 <Logo src={logo} alt="Logo" />
             </TopBarLeft>
             <TopBarRight>
-                <Icon src={fileUploadIcon} alt="Upload" />
+                {/* 파일 업로드 버튼 */}
+                <label htmlFor="file-upload">
+                    <Icon src={fileUploadIcon} alt="Upload" />
+                </label>
+                <FileInput
+                    id="file-upload"
+                    type="file"
+                    webkitdirectory="true"
+                    directory="true"
+                    multiple
+                    onChange={onFolderSelect} // 폴더 선택 시 파일 업로드
+                />
                 <Icon src={userIcon} alt="User" />
                 <Username>000님</Username>
                 <Icon src={logoutIcon} alt="Logout" />
@@ -64,4 +99,5 @@ const TopBar = () => {
         </TopBarContainer>
     );
 };
+
 export default TopBar;

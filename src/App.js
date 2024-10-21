@@ -1,12 +1,16 @@
 import logo from './logo.svg';
 import './App.css';
 import TopBar from './components/topbar';
+import ImageLoad from './imageLoad'
+import { UploadProvider } from './context/UploadContext';
 
 function App() {
   return (
-    <div className="App">
+       <UploadProvider>
         <TopBar/>
-    </div>
+        <ImageLoad/>
+        </UploadProvider>
+
   );
 }
 
