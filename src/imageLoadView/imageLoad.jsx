@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import dicomParser from "dicom-parser";
-import { UploadContext } from './context/UploadContext'; // UploadContext 가져오기
+import { UploadContext } from '../context/UploadContext'; // UploadContext 가져오기
 
 // cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -13,58 +13,6 @@ cornerstoneWADOImageLoader.configure({
     xhr.setRequestHeader('Accept', 'multipart/related; type="application/dicom"');
   }
 });
-
-// styled-components를 사용하여 스타일 정의
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 20px;
-  height: 90vh;
-`;
-
-const FileListContainer = styled.div`
-  flex: 1;
-`;
-
-const FileList = styled.ul`
-  padding: 10px;
-  background: #333;
-  width: 200px;
-  color: #fff;
-  height: 80vh;
-  overflow-y: scroll;
-`;
-
-const FileItem = styled.li`
-  cursor: pointer;
-  padding: 5px;
-  background-color: #444;
-  margin-bottom: 5px;
-
-  &:hover {
-    background-color: #555;
-  }
-`;
-
-const DicomViewerContainer = styled.div`
-  flex: 2;
-  margin-left: 20px;
-  text-align: center;
-`;
-
-const DicomElement = styled.div`
-  width: 100%;
-  height: 90%;
-  background: black;
-  margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ErrorMessage = styled.p`
-  color: red;
-`;
 
 function DicomViewer() {
   const { uploadedFiles } = useContext(UploadContext); // 업로드된 파일 리스트 가져오기
@@ -133,3 +81,57 @@ function DicomViewer() {
 }
 
 export default DicomViewer;
+
+// styled-components를 사용하여 스타일 정의
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 20px;
+  height: 90vh;
+   margin-left: 270px; 
+`;
+
+const FileListContainer = styled.div`
+  flex: 1;
+`;
+
+const FileList = styled.ul`
+  padding: 10px;
+  background: #333;
+  width: 200px;
+  color: #fff;
+  height: 80vh;
+  overflow-y: scroll;
+`;
+
+const FileItem = styled.li`
+  cursor: pointer;
+  padding: 5px;
+  background-color: #444;
+  margin-bottom: 5px;
+
+  &:hover {
+    background-color: #555;
+  }
+`;
+
+const DicomViewerContainer = styled.div`
+  flex: 2;
+  margin-left: 20px;
+  text-align: center;
+`;
+
+const DicomElement = styled.div`
+  width: 100%;
+  height: 90%;
+  background: black;
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+`;
+
