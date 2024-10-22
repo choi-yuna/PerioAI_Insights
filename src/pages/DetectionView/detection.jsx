@@ -75,10 +75,10 @@ function DicomViewer() {
           
           // DICOM 이미지와 PNG 이미지를 같은 캔버스에 그리기
           const scaleX = width / pngImage.width;
-const scaleY = height / pngImage.height;
-context.drawImage(pngImage, 0, 0, pngImage.width * scaleX, pngImage.height * scaleY); // 비율에 맞춰 그리기
-console.log("DICOM Size:", width, height);
-console.log("Overlay Size:", pngImage.width, pngImage.height);
+            const scaleY = height / pngImage.height;
+            context.drawImage(pngImage, 1, 1, pngImage.width * scaleX, pngImage.height * scaleY); // 비율에 맞춰 그리기
+            console.log("DICOM Size:", width, height);
+            console.log("Overlay Size:", pngImage.width, pngImage.height);
 
         };
 
