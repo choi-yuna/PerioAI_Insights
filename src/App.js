@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import './App.css';
 import TopBar from './components/topbar';
 import DicomViewer from './pages/imageLoadView/imageLoad'
+import DetectionViewer from './pages/DetectionView/detection'
 import Analysis from './pages/analysisView/analysis';
 import MenuBar from './components/menubar';
 import { UploadProvider } from './context/UploadContext';
@@ -18,7 +19,7 @@ function App() {
         <TopBar/>
           <Routes>
             <Route path="/image-load" element={<DicomViewer/>} />
-            <Route path="/detection" element={<DicomViewer/>} />
+            <Route path="/detection" element={<DetectionViewer/>} />
             <Route path="/analysis" element={<Analysis/>} />
           </Routes>
         </UploadProvider>

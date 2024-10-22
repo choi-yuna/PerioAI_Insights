@@ -15,76 +15,86 @@ cornerstoneWADOImageLoader.configure({
 });
 
 function DicomViewer() {
-  const { uploadedFiles } = useContext(UploadContext); // 업로드된 파일 리스트 가져오기
+  const { uploadedFiles } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
 
   useEffect(() => {
     if (dicomElementRef.current) {
-      cornerstone.enable(dicomElementRef.current); // cornerstone 요소 활성화
+      cornerstone.enable(dicomElementRef.current);
     }
     return () => {
       if (dicomElementRef.current) {
-        cornerstone.disable(dicomElementRef.current); // 컴포넌트 언마운트 시 cornerstone 비활성화
+        cornerstone.disable(dicomElementRef.current);
       }
     };
   }, []);
 
   const loadDicomImage = async (fileObj) => {
-    const file = fileObj.file; // 실제 File 객체 가져오기
+    const file = fileObj.file;
 
     if (!file) {
-      console.error("File is undefined or invalid.");
-      setErrorMessage("유효하지 않은 파일입니다.");
-      return;
+        console.error("File is undefined or invalid.");
+        setErrorMessage("유효하지 않은 파일입니다.");
+        return;
     }
 
-    setErrorMessage(null); // 에러 메시지 초기화
-    const fileUrl = URL.createObjectURL(file); // Blob URL 생성
-    const imageId = `wadouri:${fileUrl}`; // cornerstoneWADOImageLoader에서 사용할 이미지 ID 생성
+    setErrorMessage(null);
+    const fileUrl = URL.createObjectURL(file);
+    const imageId = `wadouri:${fileUrl}`;
 
     try {
-      const element = dicomElementRef.current;
+        const element = dicomElementRef.current;
 
-      // DICOM 이미지 로드
-      const image = await cornerstone.loadImage(imageId);
-      cornerstone.displayImage(element, image);
-      cornerstone.reset(element);
+        // DICOM 이미지 로드
+        const image = await cornerstone.loadImage(imageId);
+        console.log("Loaded DICOM Image:", image); // DICOM 이미지 확인
 
-      // PNG 파일 경로 가져오기
-      const pngFileName = file.name.replace('.dcm', '.png'); // DICOM 파일 이름을 기반으로 PNG 파일 이름 생성
-      const pngFile = uploadedFiles.find(uploadedFile => uploadedFile.name === pngFileName); // PNG 파일 찾기
-      console.log(pngFile)
+        if (!image) {
+            console.error("Failed to load DICOM image.");
+            setErrorMessage("DICOM 이미지를 로드하는 데 실패했습니다.");
+            return;
+        }
 
-      if (pngFile) {
-        const pngImagePath = pngFile.path; // PNG 파일 경로 가져오기
+        // DICOM 이미지의 실제 크기 가져오기
+        const { width, height } = image;
+        element.width = width; // 캔버스 너비 설정
+        element.height = height; // 캔버스 높이 설정
 
-        // PNG 이미지 로드 및 그리기
-        const pngImage = new Image();
-        pngImage.src = pngImagePath; // PNG 파일 경로
+        // DICOM 이미지 그리기
+        cornerstone.displayImage(element, image);
+        cornerstone.reset(element);
 
-        pngImage.onload = () => {
-          const canvas = dicomElementRef.current; 
-          const context = canvas.getContext('2d');
-          context.clearRect(0, 0, canvas.width, canvas.height); // 이전 내용을 지움
-          cornerstone.displayImage(element, image); // DICOM 이미지 그리기
-          context.drawImage(pngImage, 0, 0); // PNG 이미지 그리기
-        };
+        // PNG 파일 경로 가져오기
+        const pngFileName = file.name.replace('.dcm', '.png');
+        const pngFile = uploadedFiles.find(uploadedFile => uploadedFile.name === pngFileName);
 
-        pngImage.onerror = () => {
-          console.error("Error loading PNG image at", pngImagePath);
-          setErrorMessage("PNG 파일을 불러오지 못했습니다.");
-        };
-      } else {
-        console.error("PNG file not found for", pngFileName);
-        setErrorMessage("PNG 파일을 찾을 수 없습니다.");
-      }
+        if (pngFile) {
+            const pngFileUrl = URL.createObjectURL(pngFile.file);
+            const pngImage = new Image();
+            pngImage.src = pngFileUrl;
+
+            pngImage.onload = () => {
+                const context = element.getContext('2d');
+                context.clearRect(0, 0, width, height); // 캔버스 클리어
+                context.drawImage(pngImage, 0, 0, width, height); // PNG 이미지 그리기
+
+            };
+
+            pngImage.onerror = () => {
+                console.error("Error loading PNG image at", pngFileUrl);
+                setErrorMessage("PNG 파일을 불러오지 못했습니다.");
+            };
+        } else {
+            console.error("PNG file not found for", pngFileName);
+            setErrorMessage("PNG 파일을 찾을 수 없습니다.");
+        }
 
     } catch (error) {
-      console.error("Error loading DICOM image:", error);
-      setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
+        console.error("Error loading DICOM image:", error);
+        setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
     }
-  };
+};
 
   const dicomFiles = uploadedFiles.filter(file => file.name.endsWith('.dcm'));
 
@@ -167,14 +177,11 @@ const DicomViewerContainer = styled.div`
   text-align: center;
 `;
 
-const DicomElement = styled.div`
+const DicomElement = styled.canvas`
   width: 100%;
-  height: 90%;
+  height: auto; /* 자동 높이 설정 */
   background: black;
   margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 const ErrorMessage = styled.p`
