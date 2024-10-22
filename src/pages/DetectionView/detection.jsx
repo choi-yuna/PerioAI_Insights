@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import dicomParser from "dicom-parser";
-import { UploadContext } from '../context/UploadContext';
+import { UploadContext } from '../../context/UploadContext'; // UploadContext 가져오기
 
 // cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -77,10 +77,8 @@ function DicomViewer() {
             pngImage.onload = () => {
                 const context = element.getContext('2d');
                 context.clearRect(0, 0, width, height); // 캔버스 클리어
-                cornerstone.displayImage(element, image); // DICOM 이미지 다시 그리기
-                context.globalAlpha = 0.5; // PNG 이미지 투명도 설정
                 context.drawImage(pngImage, 0, 0, width, height); // PNG 이미지 그리기
-                context.globalAlpha = 1.0; // 투명도 복구
+
             };
 
             pngImage.onerror = () => {
