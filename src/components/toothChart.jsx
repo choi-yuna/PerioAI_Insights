@@ -75,7 +75,9 @@ const ToothChart = () => {
                 alt={`Tooth ${toothNumber}`}
                 borderColor={getBorderColor(annotationData[toothNumber.toString()])}
               />
-              <ToothNumber>{toothNumber}</ToothNumber>
+              <ToothNumber status={annotationData[toothNumber.toString()]}>
+                {toothNumber}
+              </ToothNumber>
             </ToothImageWrapper>
           </ToothIcon>
         ))}
@@ -91,7 +93,9 @@ const ToothChart = () => {
                 alt={`Tooth ${toothNumber}`}
                 borderColor={getBorderColor(annotationData[toothNumber.toString()])}
               />
-              <ToothNumber>{toothNumber}</ToothNumber>
+              <ToothNumberLower status={annotationData[toothNumber.toString()]}>
+                {toothNumber}
+              </ToothNumberLower>
             </ToothImageWrapper>
           </ToothIcon>
         ))}
@@ -112,6 +116,18 @@ const getBorderColor = (status) => {
   }
 };
 
+// 질환 번호에 따른 치아 번호 색상
+const getTextColor = (status) => {
+  switch (status) {
+    case "1": return "#000000"; 
+    case "2": return "#FF0000"; 
+    case "3": return "#0000FF"; 
+    case "4": return "#FFA500";
+    case "5": return "#FFFF00"; 
+    default: return "#000000"; 
+  }
+};
+
 export default ToothChart;
 
 // 스타일 컴포넌트 정의
@@ -120,7 +136,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 3px 20px;
   background-color: #f5fbff;
   border-radius: 20px; 
   border: 3px solid #d4d4d4;
@@ -129,7 +145,7 @@ const Container = styled.div`
 const Title = styled.h1`
   display: flex;
   font-size: 28px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   margin-left: 10px;
   color: #0d1e29;
   align-self: flex-start;
@@ -138,7 +154,7 @@ const Title = styled.h1`
 const ToothRow = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 `;
 
 const ToothIcon = styled.div`
@@ -167,6 +183,7 @@ const ToothImage = styled.img`
   }
 `;
 
+// 상악 치아 번호 스타일
 const ToothNumber = styled.div`
   position: absolute;
   bottom: -30px; 
@@ -174,7 +191,16 @@ const ToothNumber = styled.div`
   transform: translateX(-50%);
   font-size: 1.2em;
   font-weight: bold;
-  color: #000000; 
+  color: ${props => getTextColor(props.status)};  /* 질환 번호에 따른 텍스트 색상 */
   padding: 2px 5px;
   border-radius: 3px;
+`;
+
+// 하악 치아 번호 스타일 (이미지 위에 표시)
+const ToothNumberLower = styled(ToothNumber)`
+  bottom: 120%;  /* 이미지 중앙으로 이동 */
+  transform: translate(-50%, 50%); /* 중앙 정렬 */
+  font-size: 1.2em;  /* 하악 치아 번호 크기 */
+  padding: 2px 5px;
+
 `;

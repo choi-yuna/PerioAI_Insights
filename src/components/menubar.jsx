@@ -62,7 +62,7 @@ const MenuBarContainer = styled.div`
   height: 100vh;
   background-color: #003250;
   padding: 7px;
-  margin-top: 3.2%;
+  margin-top: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
