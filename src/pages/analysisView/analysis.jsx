@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import ToothChart from '../../components/toothChart';
 
 const Analysis = () => {
   return (
     <Container>
-      <Title>Tooth Chart</Title>
+      <ToothChart/>
     </Container>
   );
 };
@@ -17,12 +18,5 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  height: 100vh;
-`;
-
-const Title = styled.h1`
-  font-size: 2em;
-  margin-bottom: 30px;
-  color: #003250;
+  height: 60vh;
 `;
