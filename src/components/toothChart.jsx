@@ -17,13 +17,18 @@ const toothImages = {
 };
 
 const ToothChart = () => {
-  const { uploadedFiles } = useContext(UploadContext);
+  const { uploadedFiles, selectedFile } = useContext(UploadContext); // 선택된 이미지 파일을 가져옴
   const [annotationData, setAnnotationData] = useState(null);
 
-  // 파일 읽기 및 JSON 데이터 파싱
+  // 선택된 이미지 파일 이름을 기반으로 JSON 파일 찾기
   useEffect(() => {
-    if (uploadedFiles.length > 0) {
-      const jsonFile = uploadedFiles.find(file => file.name.endsWith('.json'));
+    if (selectedFile && uploadedFiles.length > 0) {
+      const selectedFileName = selectedFile.name.replace(/\.[^/.]+$/, ""); // 확장자 제거
+
+      // 선택한 이미지와 이름이 같은 JSON 파일 찾기
+      const jsonFile = uploadedFiles.find(file => 
+        file.name.endsWith('.json') && file.name.includes(selectedFileName)
+      );
 
       if (jsonFile && jsonFile.file instanceof Blob) {
         const reader = new FileReader();
@@ -38,7 +43,7 @@ const ToothChart = () => {
         reader.readAsText(jsonFile.file);
       }
     }
-  }, [uploadedFiles]);
+  }, [selectedFile, uploadedFiles]);
 
   if (!annotationData) {
     return <p>Loading data...</p>;
@@ -100,7 +105,7 @@ const getBorderColor = (status) => {
   switch (status) {
     case "1": return "#000000"; // 정상 
     case "2": return "#FF0000"; // 상실 
-    case "3": return "#0000FF"; // 임플란트 -
+    case "3": return "#0000FF"; // 임플란트
     case "4": return "#FFA500"; // 브릿지 
     case "5": return "#FFFF00"; // 기타 
     default: return "#ccc";     // 기본 테두리
@@ -109,7 +114,7 @@ const getBorderColor = (status) => {
 
 export default ToothChart;
 
-
+// 스타일 컴포넌트 정의
 const Container = styled.div`
   display: flex;
   flex-direction: column;

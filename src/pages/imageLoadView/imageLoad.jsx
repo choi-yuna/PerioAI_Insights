@@ -15,7 +15,7 @@ cornerstoneWADOImageLoader.configure({
 });
 
 function DicomViewer() {
-  const { uploadedFiles } = useContext(UploadContext); // 업로드된 파일 리스트 가져오기
+  const { uploadedFiles, handleFileSelect } = useContext(UploadContext); // 전역 상태와 함수 가져오기
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
 
@@ -50,6 +50,8 @@ function DicomViewer() {
       const image = await cornerstone.loadImage(imageId);
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
+
+      handleFileSelect(file); // 선택한 파일을 전역 상태로 저장
 
     } catch (error) {
       console.error("Error loading DICOM image:", error);
