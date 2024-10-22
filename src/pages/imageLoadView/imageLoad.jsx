@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import dicomParser from "dicom-parser";
-import { UploadContext } from '../context/UploadContext'; // UploadContext 가져오기
+import { UploadContext } from '../../context/UploadContext'; // UploadContext 가져오기
 
 // cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
