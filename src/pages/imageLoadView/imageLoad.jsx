@@ -51,35 +51,6 @@ function DicomViewer() {
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
 
-      // PNG 파일 경로 가져오기
-      const pngFileName = file.name.replace('.dcm', '.png'); // DICOM 파일 이름을 기반으로 PNG 파일 이름 생성
-      const pngFile = uploadedFiles.find(uploadedFile => uploadedFile.name === pngFileName); // PNG 파일 찾기
-      console.log(pngFile)
-
-      if (pngFile) {
-        const pngImagePath = pngFile.path; // PNG 파일 경로 가져오기
-
-        // PNG 이미지 로드 및 그리기
-        const pngImage = new Image();
-        pngImage.src = pngImagePath; // PNG 파일 경로
-
-        pngImage.onload = () => {
-          const canvas = dicomElementRef.current; 
-          const context = canvas.getContext('2d');
-          context.clearRect(0, 0, canvas.width, canvas.height); // 이전 내용을 지움
-          cornerstone.displayImage(element, image); // DICOM 이미지 그리기
-          context.drawImage(pngImage, 0, 0); // PNG 이미지 그리기
-        };
-
-        pngImage.onerror = () => {
-          console.error("Error loading PNG image at", pngImagePath);
-          setErrorMessage("PNG 파일을 불러오지 못했습니다.");
-        };
-      } else {
-        console.error("PNG file not found for", pngFileName);
-        setErrorMessage("PNG 파일을 찾을 수 없습니다.");
-      }
-
     } catch (error) {
       console.error("Error loading DICOM image:", error);
       setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
