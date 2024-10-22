@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import dicomParser from "dicom-parser";
-import { UploadContext } from '../../context/UploadContext'; // UploadContext 가져오기
+import { UploadContext } from '../../context/UploadContext';
 
-// cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 cornerstoneWADOImageLoader.configure({
@@ -18,6 +17,7 @@ function DicomViewer() {
   const { uploadedFiles } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
+  const canvasRef = useRef(null); // 캔버스 참조 추가
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -34,9 +34,9 @@ function DicomViewer() {
     const file = fileObj.file;
 
     if (!file) {
-        console.error("File is undefined or invalid.");
-        setErrorMessage("유효하지 않은 파일입니다.");
-        return;
+      console.error("File is undefined or invalid.");
+      setErrorMessage("유효하지 않은 파일입니다.");
+      return;
     }
 
     setErrorMessage(null);
@@ -44,57 +44,58 @@ function DicomViewer() {
     const imageId = `wadouri:${fileUrl}`;
 
     try {
-        const element = dicomElementRef.current;
+      const element = dicomElementRef.current;
 
-        // DICOM 이미지 로드
-        const image = await cornerstone.loadImage(imageId);
-        console.log("Loaded DICOM Image:", image); // DICOM 이미지 확인
+      // DICOM 이미지 로드
+      const image = await cornerstone.loadImage(imageId);
+      cornerstone.displayImage(element, image);
+      cornerstone.reset(element);
 
-        if (!image) {
-            console.error("Failed to load DICOM image.");
-            setErrorMessage("DICOM 이미지를 로드하는 데 실패했습니다.");
-            return;
-        }
+      const { width, height } = image;
+      element.width = width; // DICOM 캔버스 너비 설정
+      element.height = height; // DICOM 캔버스 높이 설정
 
-        // DICOM 이미지의 실제 크기 가져오기
-        const { width, height } = image;
-        element.width = width; // 캔버스 너비 설정
-        element.height = height; // 캔버스 높이 설정
+      // 캔버스 크기 설정
+      const canvas = canvasRef.current;
+      canvas.width = width; // 캔버스의 너비
+      canvas.height = height; // 캔버스의 높이
 
-        // DICOM 이미지 그리기
-        cornerstone.displayImage(element, image);
-        cornerstone.reset(element);
+      // PNG 파일 경로 가져오기
+      const pngFileName = file.name.replace('.dcm', '.png');
+      const pngFile = uploadedFiles.find(uploadedFile => uploadedFile.name === pngFileName);
 
-        // PNG 파일 경로 가져오기
-        const pngFileName = file.name.replace('.dcm', '.png');
-        const pngFile = uploadedFiles.find(uploadedFile => uploadedFile.name === pngFileName);
+      if (pngFile) {
+        const pngFileUrl = URL.createObjectURL(pngFile.file);
+        const pngImage = new Image();
+        pngImage.src = pngFileUrl;
 
-        if (pngFile) {
-            const pngFileUrl = URL.createObjectURL(pngFile.file);
-            const pngImage = new Image();
-            pngImage.src = pngFileUrl;
+        pngImage.onload = () => {
+          const context = canvas.getContext('2d');
+          context.clearRect(0, 0, canvas.width, canvas.height); // 캔버스 클리어
+          
+          // DICOM 이미지와 PNG 이미지를 같은 캔버스에 그리기
+          const scaleX = width / pngImage.width;
+const scaleY = height / pngImage.height;
+context.drawImage(pngImage, 0, 0, pngImage.width * scaleX, pngImage.height * scaleY); // 비율에 맞춰 그리기
+console.log("DICOM Size:", width, height);
+console.log("Overlay Size:", pngImage.width, pngImage.height);
 
-            pngImage.onload = () => {
-                const context = element.getContext('2d');
-                context.clearRect(0, 0, width, height); // 캔버스 클리어
-                context.drawImage(pngImage, 0, 0, width, height); // PNG 이미지 그리기
+        };
 
-            };
-
-            pngImage.onerror = () => {
-                console.error("Error loading PNG image at", pngFileUrl);
-                setErrorMessage("PNG 파일을 불러오지 못했습니다.");
-            };
-        } else {
-            console.error("PNG file not found for", pngFileName);
-            setErrorMessage("PNG 파일을 찾을 수 없습니다.");
-        }
+        pngImage.onerror = () => {
+          console.error("Error loading PNG image at", pngFileUrl);
+          setErrorMessage("PNG 파일을 불러오지 못했습니다.");
+        };
+      } else {
+        console.error("PNG file not found for", pngFileName);
+        setErrorMessage("PNG 파일을 찾을 수 없습니다.");
+      }
 
     } catch (error) {
-        console.error("Error loading DICOM image:", error);
-        setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
+      console.error("Error loading DICOM image:", error);
+      setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
     }
-};
+  };
 
   const dicomFiles = uploadedFiles.filter(file => file.name.endsWith('.dcm'));
 
@@ -117,7 +118,10 @@ function DicomViewer() {
 
       <DicomViewerContainer>
         <h2>영상 View</h2>
-        <DicomElement ref={dicomElementRef} />
+        <ViewerContainer>
+          <DicomElement ref={dicomElementRef} />
+          <Canvas ref={canvasRef} /> {/* 오버레이를 위한 캔버스 추가 */}
+        </ViewerContainer>
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </DicomViewerContainer>
     </Container>
@@ -177,11 +181,27 @@ const DicomViewerContainer = styled.div`
   text-align: center;
 `;
 
-const DicomElement = styled.canvas`
+const ViewerContainer = styled.div`
+  position: relative; /* 자식 요소를 절대 위치로 설정하기 위한 기준 */
   width: 100%;
-  height: auto; /* 자동 높이 설정 */
+  height: 90%;
+`;
+
+const DicomElement = styled.div`
+  width: 100%;
+  height: 100%;
   background: black;
   margin: 20px auto;
+`;
+
+const Canvas = styled.canvas` // 오버레이를 위한 캔버스
+  position: absolute; // DICOM 이미지 위에 위치
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; // DICOM 이미지와 동일한 크기
+  background: transparent; /* 배경을 투명하게 설정 */
+  pointer-events: none; // 클릭 이벤트를 DICOM 이미지에 전달
 `;
 
 const ErrorMessage = styled.p`
