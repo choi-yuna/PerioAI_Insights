@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
 import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import dicomParser from "dicom-parser";
-import { UploadContext } from '../../context/UploadContext'; // UploadContext 가져오기
+import { UploadContext } from '../../context/UploadContext';
 
 // cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
@@ -15,23 +15,24 @@ cornerstoneWADOImageLoader.configure({
 });
 
 function DicomViewer() {
-  const { uploadedFiles, handleFileSelect } = useContext(UploadContext); // 전역 상태와 함수 가져오기
+  const { uploadedFiles, handleFileSelect } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
+  const [scale, setScale] = useState(1); // 이미지 확대/축소 비율 상태 추가
 
   useEffect(() => {
     if (dicomElementRef.current) {
-      cornerstone.enable(dicomElementRef.current); // cornerstone 요소 활성화
+      cornerstone.enable(dicomElementRef.current);
     }
     return () => {
       if (dicomElementRef.current) {
-        cornerstone.disable(dicomElementRef.current); // 컴포넌트 언마운트 시 cornerstone 비활성화
+        cornerstone.disable(dicomElementRef.current);
       }
     };
   }, []);
 
   const loadDicomImage = async (fileObj) => {
-    const file = fileObj.file; // 실제 File 객체 가져오기
+    const file = fileObj.file;
 
     if (!file) {
       console.error("File is undefined or invalid.");
@@ -39,9 +40,9 @@ function DicomViewer() {
       return;
     }
 
-    setErrorMessage(null); // 에러 메시지 초기화
-    const fileUrl = URL.createObjectURL(file); // Blob URL 생성
-    const imageId = `wadouri:${fileUrl}`; // cornerstoneWADOImageLoader에서 사용할 이미지 ID 생성
+    setErrorMessage(null);
+    const fileUrl = URL.createObjectURL(file);
+    const imageId = `wadouri:${fileUrl}`;
 
     try {
       const element = dicomElementRef.current;
@@ -51,8 +52,7 @@ function DicomViewer() {
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
 
-      handleFileSelect(file); // 선택한 파일을 전역 상태로 저장
-
+      handleFileSelect(file);
     } catch (error) {
       console.error("Error loading DICOM image:", error);
       setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
@@ -60,6 +60,19 @@ function DicomViewer() {
   };
 
   const dicomFiles = uploadedFiles.filter(file => file.name.endsWith('.dcm'));
+
+  // 확대/축소 핸들러
+  const handleWheel = (event) => {
+    event.preventDefault();
+    const delta = event.deltaY < 0 ? 0.1 : -0.1; // 휠의 방향에 따라 스케일 조정
+    setScale((prevScale) => {
+      const newScale = Math.max(0.1, prevScale + delta); // 최소 스케일 제한
+      cornerstone.setViewport(dicomElementRef.current, {
+        scale: newScale
+      });
+      return newScale;
+    });
+  };
 
   return (
     <Container>
@@ -78,7 +91,7 @@ function DicomViewer() {
         )}
       </FileListContainer>
 
-      <DicomViewerContainer>
+      <DicomViewerContainer onWheel={handleWheel}>
         <h2>영상 View</h2>
         <DicomElement ref={dicomElementRef} />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -89,7 +102,7 @@ function DicomViewer() {
 
 export default DicomViewer;
 
-// styled-components를 사용하여 스타일 정의
+// styled-components 스타일 정의
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -101,6 +114,7 @@ const Container = styled.div`
 const FileListContainer = styled.div`
   margin-right: 20px; /* 이미지 뷰와의 간격 */
   margin-top: 70px;
+  width: 200px; /* 고정 너비 */
 `;
 
 const FileListTitle = styled.h2`
@@ -110,25 +124,26 @@ const FileListTitle = styled.h2`
   text-align: center;
   margin: 0;
   border-bottom: 2px solid #444;
-  font-size: 10px; // 폰트 크기 증가
+  font-size: 14px; // 폰트 크기 증가
   font-weight: bold; // 폰트 두께 조정
 `;
 
 const FileList = styled.ul`
   padding: 10px;
   background: #333;
-  width: 200px;
   color: #fff;
   height: 72vh;
-  overflow-y: scroll;
+  overflow-y: auto; /* 스크롤 가능하게 */
+  border-radius: 5px; /* 모서리 둥글게 */
 `;
 
 const FileItem = styled.li`
   cursor: pointer;
-  padding: 5px;
+  padding: 10px;
   background-color: #444; // 아이템 배경색
   margin-bottom: 5px;
   color: #ffffff; // 흰색 텍스트
+  transition: background-color 0.3s; /* 부드러운 호버 효과 */
 
   &:hover {
     background-color: #555; // 호버 시 배경색 변화
@@ -138,16 +153,14 @@ const FileItem = styled.li`
 const DicomViewerContainer = styled.div`
   flex: 2; /* 이미지 뷰의 크기 비율 */
   text-align: center;
+  position: relative; /* DICOM 뷰어의 위치 조정 */
 `;
 
 const DicomElement = styled.div`
-  width: 90%;
-  height: 90%;
-  background: black;
-  margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 90%; /* 전체 너비 */
+  height: 90%; /* 전체 높이 */
+  background: black; 
+  margin: 20px auto; /* 중앙 정렬 */
 `;
 
 const ErrorMessage = styled.p`
