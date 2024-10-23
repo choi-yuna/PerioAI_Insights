@@ -17,13 +17,13 @@ function DicomViewer() {
   const { uploadedFiles, selectedFile } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const [overlays, setOverlays] = useState({
-    tooth: true, 
+    tooth: true,
     alve: true,
     cej: true,
     tla: true,
-  }); // 오버레이 상태 초기화
+  });
   const dicomElementRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [overlayImages, setOverlayImages] = useState([]);
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -42,69 +42,37 @@ function DicomViewer() {
       setErrorMessage("유효하지 않은 파일입니다.");
       return;
     }
-  
+
     setErrorMessage(null);
     const fileUrl = URL.createObjectURL(file);
     const imageId = `wadouri:${fileUrl}`;
-  
+
     try {
       const element = dicomElementRef.current;
-  
-      // DICOM 이미지 로드
+
       const image = await cornerstone.loadImage(imageId);
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
-  
+
       const { width, height } = image;
-      element.width = width; // DICOM 캔버스 너비 설정
-      element.height = height; // DICOM 캔버스 높이 설정
-  
-      // 캔버스 크기 설정
-      const canvas = canvasRef.current;
-      canvas.width = width; // 캔버스의 너비
-      canvas.height = height; // 캔버스의 높이
-  
-      // PNG 파일 경로 가져오기
-      const pngFileName = file.name.replace('.dcm', '.png'); // DICOM 파일 이름에서 PNG 파일 이름으로 변경
-  
-      // PNG 파일 경로 생성
+
+      const pngFileName = file.name.replace('.dcm', '.png');
       const overlayPaths = {
         tooth: `Labelling/tooth/${pngFileName}`,
         alve: `Labelling/alve/${pngFileName}`,
         cej: `Labelling/cej/${pngFileName}`,
         tla: `Labelling/tla/${pngFileName}`,
       };
-  
-      // 모든 오버레이에 대해 PNG 파일을 확인하고 그리기
-      const context = canvas.getContext('2d');
-      context.clearRect(0, 0, canvas.width, canvas.height); // 캔버스 클리어
-  
-      for (const [key, path] of Object.entries(overlayPaths)) {
+
+      const newOverlayImages = Object.entries(overlayPaths).map(([key, path]) => {
         const pngFile = uploadedFiles.find(uploadedFile => 
-          uploadedFile.path.endsWith(pngFileName) && // 파일 이름 일치
-          uploadedFile.path.includes(key) // 폴더 포함 여부 확인
+          uploadedFile.path.endsWith(pngFileName) &&
+          uploadedFile.path.includes(key)
         );
-  
-        if (overlays[key] && pngFile) {
-          const pngFileUrl = URL.createObjectURL(pngFile.file);
-          const pngImage = new Image();
-          pngImage.src = pngFileUrl;
-  
-          pngImage.onload = () => {
-            const scaleX = width / pngImage.width;
-            const scaleY = height / pngImage.height;
-            context.drawImage(pngImage, 0, 0, pngImage.width * scaleX, pngImage.height * scaleY);
-          };
-  
-          pngImage.onerror = () => {
-            console.error("Error loading PNG image at", pngFileUrl);
-            setErrorMessage("PNG 파일을 불러오지 못했습니다.");
-          };
-        } else {
-          console.warn(`No PNG file found for overlay: ${key}`);
-        }
-      }
-  
+        return overlays[key] && pngFile ? URL.createObjectURL(pngFile.file) : null;
+      }).filter(Boolean);
+
+      setOverlayImages(newOverlayImages);
     } catch (error) {
       console.error("Error loading DICOM image:", error);
       setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
@@ -115,72 +83,47 @@ function DicomViewer() {
     if (selectedFile) {
       loadDicomImage(selectedFile);
     }
-  }, [selectedFile, overlays]); // overlays가 변경될 때마다 DICOM 이미지 다시 로드
+  }, [selectedFile, overlays]);
 
   return (
     <Container>
-      {/* 왼쪽에 오버레이 선택 추가 */}
-      <OverlaySelection>
-        <h3>오버레이 선택</h3>
-        <label>
-          <input
-            type="checkbox"
-            checked={overlays.tooth} // 치아 오버레이 체크박스 상태
-            onChange={() => {
-              setOverlays(prev => ({
-                ...prev,
-                tooth: !prev.tooth // 체크 상태를 토글
-              }));
-            }} // 선택된 오버레이 설정
-          />
-          치아
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={overlays.alve} // 치조골 오버레이 체크박스 상태
-            onChange={() => {
-              setOverlays(prev => ({
-                ...prev,
-                alve: !prev.alve // 체크 상태를 토글
-              }));
-            }}
-          />
-          치조골
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={overlays.cej} // CEJ level 오버레이 체크박스 상태
-            onChange={() => {
-              setOverlays(prev => ({
-                ...prev,
-                cej: !prev.cej // 체크 상태를 토글
-              }));
-            }}
-          />
-          CEJ level
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={overlays.tla} // TLA 오버레이 체크박스 상태
-            onChange={() => {
-              setOverlays(prev => ({
-                ...prev,
-                tla: !prev.tla // 체크 상태를 토글
-              }));
-            }}
-          />
-          TLA
-        </label>
-      </OverlaySelection>
+      <OverlayContainer>
+        <OverlaySelection>
+          <h3>오버레이 선택</h3>
+          <OverlayOption>
+            <label>
+              <input type="checkbox" checked={overlays.tooth} onChange={() => setOverlays(prev => ({ ...prev, tooth: !prev.tooth }))} />
+              치아
+            </label>
+          </OverlayOption>
+          <OverlayOption>
+            <label>
+              <input type="checkbox" checked={overlays.alve} onChange={() => setOverlays(prev => ({ ...prev, alve: !prev.alve }))} />
+              치조골
+            </label>
+          </OverlayOption>
+          <OverlayOption>
+            <label>
+              <input type="checkbox" checked={overlays.cej} onChange={() => setOverlays(prev => ({ ...prev, cej: !prev.cej }))} />
+              CEJ level
+            </label>
+          </OverlayOption>
+          <OverlayOption>
+            <label>
+              <input type="checkbox" checked={overlays.tla} onChange={() => setOverlays(prev => ({ ...prev, tla: !prev.tla }))} />
+              TLA
+            </label>
+          </OverlayOption>
+        </OverlaySelection>
+      </OverlayContainer>
 
       <DicomViewerContainer>
         <h2>영상 View</h2>
         <ViewerContainer>
           <DicomElement ref={dicomElementRef} />
-          <Canvas ref={canvasRef} />
+          {overlayImages.map((src, index) => (
+            <OverlayImage key={index} src={src} alt={`Overlay ${index}`} />
+          ))}
         </ViewerContainer>
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </DicomViewerContainer>
@@ -199,6 +142,12 @@ const Container = styled.div`
   margin-left: 300px; 
 `;
 
+const OverlayContainer = styled.div`
+  width: 200px; /* 너비 조정 */
+  margin-right: 20px; /* DICOM 뷰어와의 간격 */
+  margin-top: 20px; /* 상단 여백 */
+`;
+
 const DicomViewerContainer = styled.div`
   flex: 2; /* 이미지 뷰의 크기 비율 */
   text-align: center;
@@ -206,44 +155,46 @@ const DicomViewerContainer = styled.div`
 
 const ViewerContainer = styled.div`
   position: relative; /* 자식 요소를 절대 위치로 설정하기 위한 기준 */
-  width: 80%;
-  height: 90%;
-  margin-left : 10%;
+  width: 90%; /* 상위 요소에 맞춤 */
+  height: 90%; /* 상위 요소에 맞춤 */
+  margin-left : 50px; /* 좌측 여백 조정 */
 `;
 
 const DicomElement = styled.div`
-  width: 100%;
-  height: 100%;
-  background: black;
-  margin: 20px auto;
+  width: 100%; /* 전체 너비 */
+  height: 100%; /* 전체 높이 */
+  background: black; 
 `;
 
-const Canvas = styled.canvas` // 오버레이를 위한 캔버스
-  position: absolute; // DICOM 이미지 위에 위치
+const OverlayImage = styled.img`
+  position: absolute; /* DICOM 이미지 위에 위치 */
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%; // DICOM 이미지와 동일한 크기
-  background: transparent; /* 배경을 투명하게 설정 */
-  pointer-events: none; // 클릭 이벤트를 DICOM 이미지에 전달
+  width: 100%; /* DICOM 이미지와 동일한 크기 */
+  height: 100%; /* DICOM 이미지와 동일한 크기 */
+  object-fit: contain; /* 이미지 비율 유지 */
+  pointer-events: none; /* 이미지 클릭 이벤트 비활성화 */
 `;
 
 const ErrorMessage = styled.p`
   color: red;
 `;
 
-// 라디오 버튼 스타일 정의
 const OverlaySelection = styled.div`
-  margin-right: 20px; // DICOM 뷰어와의 간격
-  margin-top: 300px; /* 선택 영역을 조금 더 아래로 이동 */
-  text-align: left;
-  h3 {
-    margin: 0 0 10px 0;
-    font-size : 14px;
-  }
-  label {
-    display: block;
-    margin: 5px 0;
-    text-align: left; /* 라벨 텍스트 왼쪽 정렬 */
+  background: #222; /* 배경색 설정 */
+  border-radius: 5px; /* 둥근 모서리 */
+  padding: 15px; /* 내부 여백 */
+  color: #fff; /* 텍스트 색상 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* 그림자 효과 */
+  margin-top : 70px;
+`;
+
+const OverlayOption = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px; /* 항목 간격 조정 */
+  input[type='checkbox'] {
+    margin-right: 10px; /* 체크박스와 텍스트 간의 간격 조정 */
+    accent-color: #3b82f6; /* 체크박스 색상 */
   }
 `;
