@@ -141,7 +141,7 @@ const DicomViewerContainer = styled.div`
 `;
 
 const DicomElement = styled.div`
-  width: 100%;
+  width: 90%;
   height: 90%;
   background: black;
   margin: 20px auto;
