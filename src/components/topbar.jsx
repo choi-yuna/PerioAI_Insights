@@ -14,7 +14,7 @@ const TopBarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #0C476A;
+    background-color: #071231;
     padding: 10px 20px;
     color: white;
     z-index: 1000;
@@ -26,7 +26,7 @@ const TopBarLeft = styled.div`
     flex-shrink: 0;
 `;
 const Logo = styled.img`
-    height: 60px;
+    height: 63px;
     margin-right: 10px;
     left: 26px;
 `;

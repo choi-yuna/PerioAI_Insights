@@ -58,9 +58,9 @@ const MenuBar = ({ collapsed, setCollapsed }) => {
 export default MenuBar;
 
 const MenuBarContainer = styled.div`
-  width: ${(props) => (props.collapsed ? '1%' : '18%')};
+  width: ${(props) => (props.collapsed ? '1%' : '13%')};
   height: 100vh;
-  background-color: #003250;
+  background-color: #071231;
   padding: 7px;
   margin-top: 80px;
   display: flex;
@@ -75,7 +75,7 @@ const InnerContainer = styled.div`
   height: 75%;
   background-color: white;
   border-radius: 5px;
-  padding: ${(props) => (props.collapsed ? '5px 0' : '7px')};
+  padding: ${(props) => (props.collapsed ? '5px 0' : '8px')};
   display: ${(props) => (props.collapsed ? 'none' : 'block')};
   transition: padding 0.3s ease;
 `;
@@ -86,7 +86,7 @@ const ToggleButton = styled.button`
   right: 10px;
   width: 22px;
   height: 30px;
-  background-color: #003250;
+  background-color: #071231;
   border: none;
   cursor: pointer;
   transition: transform 0.3s ease;
