@@ -111,8 +111,8 @@ const getBorderColor = (status) => {
     case "2": return "#FF0000"; // 상실 
     case "3": return "#0000FF"; // 임플란트
     case "4": return "#FFA500"; // 브릿지 
-    case "5": return "#FFFF00"; // 기타 
-    default: return "#ccc";     // 기본 테두리
+    case "5": return "#b8b800"; // 기타 
+    default: return "#000000";    
   }
 };
 
@@ -123,7 +123,7 @@ const getTextColor = (status) => {
     case "2": return "#FF0000"; 
     case "3": return "#0000FF"; 
     case "4": return "#FFA500";
-    case "5": return "#FFFF00"; 
+    case "5": return "#aaaa1d"; 
     default: return "#000000"; 
   }
 };
@@ -136,15 +136,15 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3px 20px;
-  background-color: #f5fbff;
+  padding: 0px 60px;
+  background-color: #f0ececdc;
   border-radius: 20px; 
-  border: 3px solid #d4d4d4;
+  border: 3px solid #acacacc3;
 `;
 
 const Title = styled.h1`
   display: flex;
-  font-size: 28px;
+  font-size: 26px;
   margin-bottom: 15px;
   margin-left: 10px;
   color: #0d1e29;
@@ -155,6 +155,7 @@ const ToothRow = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 60px;
+  gap: 10px;
 `;
 
 const ToothIcon = styled.div`
@@ -167,11 +168,11 @@ const ToothIcon = styled.div`
 const ToothImageWrapper = styled.div`
   position: relative;
   width: 60px;
-  height: 70px;
+  height:65px;
 `;
 
 const ToothImage = styled.img`
-  width: 70%;
+  width: 60%;
   height: 70%;
   border: 2px solid ${props => props.borderColor}; 
   padding: 10px;
@@ -183,7 +184,7 @@ const ToothImage = styled.img`
   }
 `;
 
-// 상악 치아 번호 스타일
+// 상악 치아 번호
 const ToothNumber = styled.div`
   position: absolute;
   bottom: -30px; 
@@ -191,16 +192,16 @@ const ToothNumber = styled.div`
   transform: translateX(-50%);
   font-size: 1.2em;
   font-weight: bold;
-  color: ${props => getTextColor(props.status)};  /* 질환 번호에 따른 텍스트 색상 */
+  color: ${props => getTextColor(props.status)};  
   padding: 2px 5px;
   border-radius: 3px;
 `;
 
-// 하악 치아 번호 스타일 (이미지 위에 표시)
+// 하악 치아 번호
 const ToothNumberLower = styled(ToothNumber)`
-  bottom: 120%;  /* 이미지 중앙으로 이동 */
-  transform: translate(-50%, 50%); /* 중앙 정렬 */
-  font-size: 1.2em;  /* 하악 치아 번호 크기 */
+  bottom: 120%; 
+  transform: translate(-50%, 50%); 
+  font-size: 1.2em; 
   padding: 2px 5px;
 
 `;
