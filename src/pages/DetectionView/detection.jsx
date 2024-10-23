@@ -85,11 +85,23 @@ function DicomViewer() {
     }
   }, [selectedFile, overlays]);
 
+  const handleSave = () => {
+    console.log("Save functionality to be implemented");
+  };
+
+  const handleClose = () => {
+    console.log("Close functionality to be implemented");
+  };
+
+  const handleHelp = () => {
+    console.log("Help functionality to be implemented");
+  };
+
   return (
     <Container>
       <OverlayContainer>
         <OverlaySelection>
-          <h3>오버레이 선택</h3>
+          <h3>검출결과 보기</h3>
           <OverlayOption>
             <label>
               <input type="checkbox" checked={overlays.tooth} onChange={() => setOverlays(prev => ({ ...prev, tooth: !prev.tooth }))} />
@@ -118,7 +130,11 @@ function DicomViewer() {
       </OverlayContainer>
 
       <DicomViewerContainer>
-        <h2>영상 View</h2>
+        <ButtonContainer>
+          <ActionButton onClick={handleSave}>Save</ActionButton>
+          <ActionButton onClick={handleClose}>Close</ActionButton>
+          <ActionButton onClick={handleHelp}>영상제어 도움말</ActionButton>
+        </ButtonContainer>
         <ViewerContainer>
           <DicomElement ref={dicomElementRef} />
           {overlayImages.map((src, index) => (
@@ -139,25 +155,25 @@ const Container = styled.div`
   flex-direction: row;
   padding: 20px;
   height: 90vh;
-  margin-left: 300px; 
+  margin-left: 15%; 
 `;
 
 const OverlayContainer = styled.div`
   width: 200px; /* 너비 조정 */
-  margin-right: 20px; /* DICOM 뷰어와의 간격 */
-  margin-top: 20px; /* 상단 여백 */
+  margin-top: 87px; /* 상단 여백 */
 `;
 
 const DicomViewerContainer = styled.div`
   flex: 2; /* 이미지 뷰의 크기 비율 */
   text-align: center;
+  margin-top: 70px; /* 버튼과 영상 뷰 사이 여백 */
 `;
 
 const ViewerContainer = styled.div`
   position: relative; /* 자식 요소를 절대 위치로 설정하기 위한 기준 */
-  width: 90%; /* 상위 요소에 맞춤 */
-  height: 90%; /* 상위 요소에 맞춤 */
-  margin-left : 50px; /* 좌측 여백 조정 */
+  width: 89%; /* 전체 너비 */
+  height: 93%; /* 전체 높이 */
+  margin-left: 35px; /* 좌측 여백 조정 */
 `;
 
 const DicomElement = styled.div`
@@ -170,8 +186,8 @@ const OverlayImage = styled.img`
   position: absolute; /* DICOM 이미지 위에 위치 */
   top: 0;
   left: 0;
-  width: 100%; /* DICOM 이미지와 동일한 크기 */
-  height: 100%; /* DICOM 이미지와 동일한 크기 */
+  width: 100%; /* 전체 너비 */
+  height: 100%; /* 전체 높이 */
   object-fit: contain; /* 이미지 비율 유지 */
   pointer-events: none; /* 이미지 클릭 이벤트 비활성화 */
 `;
@@ -183,10 +199,10 @@ const ErrorMessage = styled.p`
 const OverlaySelection = styled.div`
   background: #222; /* 배경색 설정 */
   border-radius: 5px; /* 둥근 모서리 */
-  padding: 15px; /* 내부 여백 */
+  padding: 10px; /* 내부 여백 */
   color: #fff; /* 텍스트 색상 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* 그림자 효과 */
-  margin-top : 70px;
+  margin-top: 20px;
 `;
 
 const OverlayOption = styled.div`
@@ -196,5 +212,26 @@ const OverlayOption = styled.div`
   input[type='checkbox'] {
     margin-right: 10px; /* 체크박스와 텍스트 간의 간격 조정 */
     accent-color: #3b82f6; /* 체크박스 색상 */
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end; /* 버튼을 오른쪽 정렬 */
+  margin-bottom: 10px; /* 버튼과 영상 뷰 사이 여백 */
+  margin-right : 9%;
+`;
+
+const ActionButton = styled.button`
+  background: #3b82f6; /* 버튼 배경색 */
+  color: white; /* 버튼 텍스트 색상 */
+  border: none; /* 테두리 제거 */
+  border-radius: 5px; /* 둥근 모서리 */
+  padding: 5px 10px; /* 버튼 크기 조정 */
+  margin: 0 5px; /* 버튼 간 간격 */
+  cursor: pointer; /* 커서 포인터 변경 */
+
+  &:hover {
+    background: #2563eb; /* 호버 시 색상 변경 */
   }
 `;
