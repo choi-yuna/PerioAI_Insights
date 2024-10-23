@@ -106,10 +106,10 @@ function DicomViewer() {
       }
   
     } catch (error) {
-      console.error("Error loading DICOM image:", error);
-      setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
-    }
-  };
+        console.error("Error loading DICOM image:", error);
+        setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
+      }
+    };
 
   useEffect(() => {
     if (selectedFile) {
@@ -207,8 +207,8 @@ const DicomViewerContainer = styled.div`
 const ViewerContainer = styled.div`
   position: relative; /* 자식 요소를 절대 위치로 설정하기 위한 기준 */
   width: 80%;
-  height: 90%;
-  margin-left : 10%;
+  height: 80%;
+  margin-left : 15%;
 `;
 
 const DicomElement = styled.div`
@@ -225,7 +225,6 @@ const Canvas = styled.canvas` // 오버레이를 위한 캔버스
   width: 100%;
   height: 100%; // DICOM 이미지와 동일한 크기
   background: transparent; /* 배경을 투명하게 설정 */
-  pointer-events: none; // 클릭 이벤트를 DICOM 이미지에 전달
 `;
 
 const ErrorMessage = styled.p`
