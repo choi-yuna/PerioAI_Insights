@@ -73,7 +73,7 @@ const MenuBarContainer = styled.div`
 const InnerContainer = styled.div`
   width: 90%;
   height: 75%;
-  background-color: white;
+  background-color: #e7e7e7;
   border-radius: 5px;
   padding: ${(props) => (props.collapsed ? '5px 0' : '8px')};
   display: ${(props) => (props.collapsed ? 'none' : 'block')};
@@ -105,14 +105,15 @@ const MenuBtn = styled.button`
   padding: 14% 15%;
   font-size: 20px;
   border: 2px solid black; 
-  background-color: ${(props) => (props.active ? 'lightblue' : 'white')}; 
-  color: black;
+  background-color: ${(props) => (props.active ? '#777777' : '#071231')}; 
+  color: white;
+  
   cursor: pointer;
   border-radius: 5px; 
   transition: background-color 0.3s;
   
   &:hover {
-    background-color: ${(props) => (props.active ? 'lightblue' : 'lightgray')}; 
+    background-color: ${(props) => (props.active ? '#777777' : 'lightgray')}; 
   }
 `;
 
