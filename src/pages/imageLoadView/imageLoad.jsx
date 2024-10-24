@@ -15,10 +15,9 @@ cornerstoneWADOImageLoader.configure({
 });
 
 function DicomViewer() {
-  const { uploadedFiles, handleFileSelect } = useContext(UploadContext);
+  const { uploadedFiles, handleFileSelect, selectedFile } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
-  const [selectedFileIndex, setSelectedFileIndex] = useState(null); // 선택한 파일 인덱스 상태 추가
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -31,7 +30,7 @@ function DicomViewer() {
     };
   }, []);
 
-  const loadDicomImage = async (fileObj, index) => {
+  const loadDicomImage = async (fileObj) => {
     const file = fileObj.file;
 
     if (!file) {
@@ -52,13 +51,22 @@ function DicomViewer() {
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
 
-      handleFileSelect(file);
-      setSelectedFileIndex(index); // 선택한 파일 인덱스 업데이트
+      handleFileSelect(file); // 선택한 파일 업데이트
     } catch (error) {
       console.error("Error loading DICOM image:", error);
       setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
     }
   };
+
+  // 선택한 파일이 있는 경우 자동으로 로드
+  useEffect(() => {
+    if (selectedFile) {
+      const selectedFileObj = uploadedFiles.find(file => file.file === selectedFile);
+      if (selectedFileObj) {
+        loadDicomImage(selectedFileObj);
+      }
+    }
+  }, [selectedFile, uploadedFiles]);
 
   const dicomFiles = uploadedFiles.filter(file => file.name.endsWith('.dcm'));
 
@@ -86,8 +94,8 @@ function DicomViewer() {
             dicomFiles.map((file, index) => (
               <FileItem
                 key={index}
-                onClick={() => loadDicomImage(file, index)}
-                selected={selectedFileIndex === index} // 선택된 파일 확인
+                onClick={() => loadDicomImage(file)}
+                selected={selectedFile === file.file} // 선택된 파일 확인
               >
                 {file.name}
               </FileItem>
@@ -149,6 +157,18 @@ const FileList = styled.ul`
   border-radius: 5px; /* 모서리 둥글게 */
   font-size: 12px; // 폰트 크기 증가
   margin: 0; /* 모든 방향의 마진 제거 */
+
+  /* 스크롤바 스타일 */
+  &::-webkit-scrollbar {
+    width: 8px; /* 스크롤바 너비 줄임 */
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #888; /* 스크롤바 색상 어둡게 */
+    border-radius: 3px; /* 스크롤바 모서리 둥글게 */
+  }
+  &::-webkit-scrollbar-track {
+    background-color: #333; /* 스크롤바 트랙 색상 */
+  }
 `;
 
 const FileItem = styled.li`
