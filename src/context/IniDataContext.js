@@ -48,10 +48,20 @@ const parseIniData = (iniContent) => {
       loadedPoints = [];
       loadedColor = [];
       Rect = false;
-    } else if (work === "S" && line.startsWith("TD")) {
-      type_ = "T";
-    } else if (work === "S" && line.startsWith("CD")) {
-      type_ = "C";
+    }  else if (work === "S" && line.startsWith("TD")) {
+        type_ = "T";
+    }  else if (work === "S" && line.startsWith("BD")) {
+        type_ = "D";
+      } else if (work === "S" && line.startsWith("CD")) {
+        type_ = "C";
+      } else if (work === "S" && line.startsWith("AD")) {
+        type_ = "A";
+      } else if (work === "S" && line.startsWith("DD")) {
+        type_ = "D";
+      } else if (work === "S" && line.startsWith("RBLD")) {
+        type_ = "RBL";
+      } else if (work === "S" && line.startsWith("TRLD")) {
+        type_ = "TRL";
     } else if (line.startsWith("C=")) {
       const parts = line.split(',');
       if (parts.length === 4) {
