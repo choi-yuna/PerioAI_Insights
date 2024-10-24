@@ -7,6 +7,7 @@ import DetectionViewer from './pages/DetectionView/detection'
 import Analysis from './pages/analysisView/analysis';
 import MenuBar from './components/menubar';
 import { UploadProvider } from './context/UploadContext';
+import { IniDataProvider } from './context/IniDataContext';
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -15,6 +16,7 @@ function App() {
     <Router>
       <div className="App">
       <UploadProvider>
+        <IniDataProvider>
         <MenuBar collapsed={collapsed} setCollapsed={setCollapsed} />
         <TopBar/>
           <Routes>
@@ -22,6 +24,7 @@ function App() {
             <Route path="/detection" element={<DetectionViewer/>} />
             <Route path="/analysis" element={<Analysis/>} />
           </Routes>
+          </IniDataProvider>
         </UploadProvider>
       </div>
     </Router>
