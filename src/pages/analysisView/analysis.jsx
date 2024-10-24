@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import ToothChart from '../../components/toothChart';
 import { useIniDataContext } from '../../context/IniDataContext'; // IniDataContext에서 훅 임포트
@@ -9,7 +9,8 @@ const Analysis = () => {
 
   return (
     <Container>
-      <ToothChart />
+      <ToothChart/>
+      <PeriodontalChart />
     </Container>
   );
 };

@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { UploadContext } from '../context/UploadContext';
-
-// 이미지 import
 import normalImage from '../assets/images/normal.png';
 import missingImage from '../assets/images/missing.png';
 import implantImage from '../assets/images/implant.png';
@@ -136,8 +134,8 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0px 60px;
-  background-color: #f0ececdc;
+  padding: 0px 50px;
+  background-color: #faf8f8b5;
   border-radius: 20px; 
   border: 3px solid #acacacc3;
 `;
@@ -154,7 +152,7 @@ const Title = styled.h1`
 const ToothRow = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 60px;
+  margin-bottom: 50px;
   gap: 10px;
 `;
 
@@ -162,13 +160,13 @@ const ToothIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 5px;
+  margin: 7px;
 `;
 
 const ToothImageWrapper = styled.div`
   position: relative;
-  width: 60px;
-  height:65px;
+  width: 53px;
+  height:60px;
 `;
 
 const ToothImage = styled.img`
