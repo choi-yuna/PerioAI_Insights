@@ -12,6 +12,9 @@ const parseIniData = (iniContent) => {
   const cejSize = [];
   const cejPoints = [];
   const cejColor = [];
+  const tlaSize = [];
+  const tlaPoints = [];
+  const tlaColor = [];
 
   let loadedColor = [];
   let loadedPoints = [];
@@ -20,6 +23,8 @@ const parseIniData = (iniContent) => {
   let work = "";
   let type_ = "";
   let num = 0;
+
+  const teethExtremes = {}; // 최대, 최소 데이터를 저장하기 위한 객체
 
   // INI 파일 내용을 라인별로 처리
   const lines = iniContent.split('\n');
@@ -40,7 +45,27 @@ const parseIniData = (iniContent) => {
           cejPoints.push([...loadedPoints]);
           cejColor.push([...loadedColor]);
           cejSize.push(_Size);
+        } else if (type_ === "A") {
+          tlaPoints.push([...loadedPoints]);
+          tlaColor.push([...loadedColor]);
+          tlaSize.push(_Size);
+        }
 
+        // 최대 및 최소 Y 좌표 계산 및 저장
+        if (type_ === "T" && loadedPoints.length > 0) {
+          const yValues = loadedPoints.map((point) => point[1]);
+          const minY = Math.min(...yValues);
+          const maxY = Math.max(...yValues);
+
+          if (!teethExtremes[num]) {
+            teethExtremes[num] = {
+              minY,
+              maxY,
+            };
+          } else {
+            teethExtremes[num].minY = Math.min(teethExtremes[num].minY, minY);
+            teethExtremes[num].maxY = Math.max(teethExtremes[num].maxY, maxY);
+          }
         }
       }
       // 상태 초기화
@@ -50,8 +75,18 @@ const parseIniData = (iniContent) => {
       Rect = false;
     } else if (work === "S" && line.startsWith("TD")) {
       type_ = "T";
+    } else if (work === "S" && line.startsWith("BD")) {
+      type_ = "D";
     } else if (work === "S" && line.startsWith("CD")) {
       type_ = "C";
+    } else if (work === "S" && line.startsWith("AD")) {
+      type_ = "A";
+    } else if (work === "S" && line.startsWith("DD")) {
+      type_ = "D";
+    } else if (work === "S" && line.startsWith("RBLD")) {
+      type_ = "RBL";
+    } else if (work === "S" && line.startsWith("TRLD")) {
+      type_ = "TRL";
     } else if (line.startsWith("C=")) {
       const parts = line.split(',');
       if (parts.length === 4) {
@@ -84,6 +119,10 @@ const parseIniData = (iniContent) => {
     cejSize,
     cejPoints,
     cejColor,
+    tlaSize,
+    tlaPoints,
+    tlaColor,
+    teethExtremes, // 최대 및 최소 Y 좌표 데이터를 포함
   };
 
   console.log("Parsed data result:", parsedData); // 최종 파싱 결과 로그
