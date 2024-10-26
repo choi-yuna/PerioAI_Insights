@@ -15,6 +15,7 @@ const parseIniData = (iniContent) => {
   const tlaSize = [];
   const tlaPoints = [];
   const tlaColor = [];
+  const tlaPointsByNum = {}; // TLA 데이터를 치아 번호별로 저장하기 위한 객체
 
   let loadedColor = [];
   let loadedPoints = [];
@@ -49,6 +50,12 @@ const parseIniData = (iniContent) => {
           tlaPoints.push([...loadedPoints]);
           tlaColor.push([...loadedColor]);
           tlaSize.push(_Size);
+
+          // 치아 번호에 따라 TLA 데이터를 저장
+          if (!tlaPointsByNum[num]) {
+            tlaPointsByNum[num] = [];
+          }
+          tlaPointsByNum[num].push([...loadedPoints]);
         }
 
         // 최대 및 최소 Y 좌표 계산 및 저장
@@ -122,6 +129,7 @@ const parseIniData = (iniContent) => {
     tlaSize,
     tlaPoints,
     tlaColor,
+    tlaPointsByNum, // 치아 번호별로 정리된 TLA 데이터 포함
     teethExtremes, // 최대 및 최소 Y 좌표 데이터를 포함
   };
 
@@ -138,21 +146,21 @@ export const IniDataProvider = ({ children }) => {
   useEffect(() => {
     console.log("Selected file:", selectedFile);
     console.log("Uploaded files:", uploadedFiles);
-  
+
     if (selectedFile && uploadedFiles.length > 0) {
       const selectedFileName = selectedFile.name.replace(/\.[^/.]+$/, ""); // 확장자 제거
-  
+
       // 선택한 이미지와 이름이 같은 INI 파일 찾기
-      const iniFile = uploadedFiles.find(file => 
+      const iniFile = uploadedFiles.find(file =>
         file.name.endsWith('.ini') && file.name.includes(selectedFileName)
       );
-  
+
       if (iniFile) {
         console.log("INI file found:", iniFile);
       } else {
         console.warn("INI file not found.");
       }
-  
+
       if (iniFile && iniFile.file instanceof Blob) {
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -165,10 +173,10 @@ export const IniDataProvider = ({ children }) => {
         };
         reader.readAsText(iniFile.file);
       }
-      
+
     }
   }, [selectedFile, uploadedFiles]);
-  
+
 
   return (
     <IniDataContext.Provider value={{ parsedData }}>
