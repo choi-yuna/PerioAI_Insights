@@ -12,8 +12,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { useIniDataContext } from '../context/IniDataContext';
 
-// Chart.js 모듈 등록
 ChartJS.register(
   LineElement,
   PointElement,
@@ -26,86 +26,167 @@ ChartJS.register(
 );
 
 const PeriodontalChart = () => {
-  const [chartData, setChartData] = useState(null);
+  const { parsedData } = useIniDataContext();
+  const [maxillaryData, setMaxillaryData] = useState(null);
+  const [mandibularData, setMandibularData] = useState(null);
 
   useEffect(() => {
-    // 차트 데이터 설정 (수동 더미 데이터로 테스트)
-    const dummyData = {
-      labels: ['Tooth 11', 'Tooth 12', 'Tooth 13', 'Tooth 14'], // X축 라벨 (치아 번호)
-      datasets: [
-        {
-          label: 'BD (치조골)', // 치조골 데이터를 나타냄
-          data: [1.2, 1.0, 1.4, 1.6], // Y축 데이터 (치조골 값)
-          borderColor: 'blue', // 파란색 선
-          borderWidth: 2,
-          fill: false,
-          tension: 0.1,
-        },
-        {
-          label: 'CD (CEJ)', // CEJ 데이터를 나타냄
-          data: [0.8, 0.9, 1.1, 1.3], // Y축 데이터 (CEJ 값)
-          borderColor: 'red', // 빨간색 선
-          borderWidth: 2,
-          fill: false,
-          tension: 0.1,
-        }
-      ],
+    if (!parsedData) return;
+
+    const createChartData = (isMaxillary) => {
+      const labels = [];
+      const bdData = [];
+      const cejData = [];
+
+      const teethOrder = isMaxillary
+        ? [11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27]
+        : [31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47];
+
+      teethOrder.forEach((toothNum, index) => {
+        const bonePoints = parsedData.bonePoints[index] || [[0, 0]];
+        const cejPoints = parsedData.cejPoints[index] || [[0, 0]];
+        const { minY, maxY } = parsedData.teethExtremes[toothNum] || { minY: 0, maxY: 1 };
+
+        // X축 레이블: Left, Center, Right 설정
+        labels.push(`${toothNum}-Left`, `${toothNum}`, `${toothNum}-Right`);
+
+        // Y값을 0-2 범위로 변환하는 함수
+        const transformY = (yValue) => {
+          return isMaxillary
+            ? ((yValue - minY) / (maxY - minY)) * 2   // 상악: minY를 0, maxY를 2로 변환
+            : ((maxY - yValue) / (maxY - minY)) * 2;  // 하악: maxY를 0, minY를 2로 변환
+        };
+
+        bdData.push(
+          transformY(bonePoints[0]?.[1]),
+          transformY(bonePoints[Math.floor(bonePoints.length / 2)]?.[1]),
+          transformY(bonePoints[bonePoints.length - 1]?.[1])
+        );
+        cejData.push(
+          transformY(cejPoints[0]?.[1]),
+          transformY(cejPoints[Math.floor(cejPoints.length / 2)]?.[1]),
+          transformY(cejPoints[cejPoints.length - 1]?.[1])
+        );
+      });
+
+      return {
+        labels,
+        datasets: [
+          {
+            label: 'BD (치조골)',
+            data: bdData,
+            borderColor: 'blue',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+          },
+          {
+            label: 'CD (CEJ)',
+            data: cejData,
+            borderColor: 'red',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+          },
+        ],
+      };
     };
 
-    setChartData(dummyData); // 더미 데이터를 설정
-  }, []);
+    setMaxillaryData(createChartData(true));
+    setMandibularData(createChartData(false));
+  }, [parsedData]);
 
-  if (!chartData) {
-    return <p>Loading chart...</p>; // 데이터가 로드될 때까지 로딩 표시
+  if (!maxillaryData || !mandibularData) {
+    return <p>Loading chart...</p>;
   }
 
   return (
-    <ChartContainer>
-      <h2>Periodontal Chart</h2>
+    <ChartsContainer>
+      <h2>Maxillary (상악) Periodontal Chart</h2>
       <Line
-        data={chartData}
+        data={maxillaryData}
         options={{
           responsive: true,
           scales: {
             y: {
-              min: 0,   // 이빨의 시작 (0)
-              max: 2,   // 이빨의 끝 (2)
+              min: 0,
+              max: 2,
               ticks: {
                 stepSize: 0.5,
-                callback: function(value) {
-                  if (value === 0) return "0"; 
-                  if (value === 1) return "1"; 
-                  if (value === 2) return "2";  
-                  return value;
-                }
+                callback: (value) => `${value}`,
               },
               title: {
                 display: true,
-                text: 'Y축' // Y축 라벨
-              }
+                text: 'Y축',
+              },
             },
             x: {
               title: {
                 display: true,
-                text: '치아 번호' // X축 라벨 (치아 번호)
-              }
-            }
-          }
+                text: '치아 번호',
+              },
+              ticks: {
+                callback: (value, index) => {
+                  return index % 3 === 1 ? maxillaryData.labels[index] : ''; // Center 위치에만 치아 번호 표시
+                },
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+            },
+          },
         }}
       />
-    </ChartContainer>
+      <h2>Mandibular (하악) Periodontal Chart</h2>
+      <Line
+        data={mandibularData}
+        options={{
+          responsive: true,
+          scales: {
+            y: {
+              min: 0,
+              max: 2,
+              ticks: {
+                stepSize: 0.5,
+                callback: (value) => `${value}`,
+              },
+              title: {
+                display: true,
+                text: 'Y축',
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: '치아 번호',
+              },
+              ticks: {
+                callback: (value, index) => {
+                  return index % 3 === 1 ? mandibularData.labels[index] : ''; // Center 위치에만 치아 번호 표시
+                },
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+            },
+          },
+        }}
+      />
+    </ChartsContainer>
   );
 };
 
 export default PeriodontalChart;
 
-// 스타일 컴포넌트 정의
-const ChartContainer = styled.div`
-  width: 50%;
-  height: 10%;
+const ChartsContainer = styled.div`
+  width: 70%;
+  height: 90%;
   margin: 0 auto;
   background-color: #f4f4f4;
   padding: 20px;
   border-radius: 8px;
 `;
-

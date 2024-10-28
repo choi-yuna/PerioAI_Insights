@@ -17,8 +17,29 @@ const parseIniData = (iniContent) => {
   const tlaColor = [];
   const tlaPointsByNum = {}; // TLA 데이터를 치아 번호별로 저장하기 위한 객체
 
-  let loadedColor = [];
+  // 치주골 데이터 추가 (번호별 매핑을 위한 객체와 전체 데이터를 위한 배열)
+  const bonePoints = [];
+  const boneColor = [];
+  const boneSize = [];
+  const cejPointsByNum = {};
+  const bonePointsByNum = {};
+
+  // 모든 치아 번호 리스트 (11~18, 21~28, 31~38, 41~48)
+  const allTeethNumbers = [
+    11, 12, 13, 14, 15, 16, 17, 18,
+    21, 22, 23, 24, 25, 26, 27, 28,
+    31, 32, 33, 34, 35, 36, 37, 38,
+    41, 42, 43, 44, 45, 46, 47, 48
+  ];
+
+  // 모든 치아 번호에 대해 기본적으로 빈 배열로 초기화
+  allTeethNumbers.forEach(num => {
+    cejPointsByNum[num] = [];
+    bonePointsByNum[num] = [];
+  });
+
   let loadedPoints = [];
+  let loadedColor = [];
   let _Size = 0;
   let Rect = false;
   let work = "";
@@ -35,6 +56,7 @@ const parseIniData = (iniContent) => {
     if (line.startsWith("START")) {
       work = "S";
     } else if (line.startsWith("N=")) {
+      // 치아 번호 파싱
       num = parseInt(line.slice(2), 10);
     } else if (line.startsWith("END")) {
       if (!Rect) {
@@ -46,6 +68,11 @@ const parseIniData = (iniContent) => {
           cejPoints.push([...loadedPoints]);
           cejColor.push([...loadedColor]);
           cejSize.push(_Size);
+
+          // 치아 번호에 따라 CEJ 포인트를 매핑
+          if (cejPointsByNum[num]) {
+            cejPointsByNum[num] = [...loadedPoints]; // 배열 자체를 저장
+          }
         } else if (type_ === "A") {
           tlaPoints.push([...loadedPoints]);
           tlaColor.push([...loadedColor]);
@@ -56,6 +83,15 @@ const parseIniData = (iniContent) => {
             tlaPointsByNum[num] = [];
           }
           tlaPointsByNum[num].push([...loadedPoints]);
+        } else if (type_ === "D") {
+          // 치아 번호에 따라 치주골 포인트 매핑 및 전체 데이터 추가
+          bonePoints.push([...loadedPoints]);
+          boneColor.push([...loadedColor]);
+          boneSize.push(_Size);
+
+          if (bonePointsByNum[num]) {
+            bonePointsByNum[num] = [...loadedPoints]; // 배열 자체를 저장
+          }
         }
 
         // 최대 및 최소 Y 좌표 계산 및 저장
@@ -83,7 +119,7 @@ const parseIniData = (iniContent) => {
     } else if (work === "S" && line.startsWith("TD")) {
       type_ = "T";
     } else if (work === "S" && line.startsWith("BD")) {
-      type_ = "D";
+      type_ = "D"; // 치주골 데이터를 위한 타입
     } else if (work === "S" && line.startsWith("CD")) {
       type_ = "C";
     } else if (work === "S" && line.startsWith("AD")) {
@@ -130,7 +166,12 @@ const parseIniData = (iniContent) => {
     tlaPoints,
     tlaColor,
     tlaPointsByNum, // 치아 번호별로 정리된 TLA 데이터 포함
+    cejPointsByNum, // 치아 번호별로 정리된 CEJ 포인트 데이터 포함
+    bonePointsByNum, // 치아 번호별로 정리된 치주골 포인트 데이터 포함
     teethExtremes, // 최대 및 최소 Y 좌표 데이터를 포함
+    bonePoints, // 전체 치주골 포인트 데이터
+    boneColor, // 전체 치주골 색상 데이터
+    boneSize,  // 전체 치주골 크기 데이터
   };
 
   console.log("Parsed data result:", parsedData); // 최종 파싱 결과 로그
@@ -150,16 +191,9 @@ export const IniDataProvider = ({ children }) => {
     if (selectedFile && uploadedFiles.length > 0) {
       const selectedFileName = selectedFile.name.replace(/\.[^/.]+$/, ""); // 확장자 제거
 
-      // 선택한 이미지와 이름이 같은 INI 파일 찾기
       const iniFile = uploadedFiles.find(file =>
         file.name.endsWith('.ini') && file.name.includes(selectedFileName)
       );
-
-      if (iniFile) {
-        console.log("INI file found:", iniFile);
-      } else {
-        console.warn("INI file not found.");
-      }
 
       if (iniFile && iniFile.file instanceof Blob) {
         const reader = new FileReader();
@@ -168,15 +202,12 @@ export const IniDataProvider = ({ children }) => {
           if (iniContent) {
             const data = parseIniData(iniContent);
             setParsedData(data);
-          } else {
           }
         };
         reader.readAsText(iniFile.file);
       }
-
     }
   }, [selectedFile, uploadedFiles]);
-
 
   return (
     <IniDataContext.Provider value={{ parsedData }}>
