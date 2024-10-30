@@ -1,4 +1,5 @@
 import React, { createContext, useState } from 'react';
+import axios from 'axios'; 
 
 // Context 생성
 export const UploadContext = createContext();
@@ -10,36 +11,42 @@ export const UploadProvider = ({ children }) => {
     const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 상태 추가
 
     // 폴더 업로드 핸들러
-    const handleFolderUpload = (files) => {
-        console.log("Selected files:", files); // 선택된 파일들 로그
+    const handleFolderUpload = async (files) => {
+        console.log("Selected files:", files);
 
         if (files.length > 0) {
-            const firstFile = files[0]; // 첫 번째 파일 가져오기
+            const formData = new FormData();
+            files.forEach((file) => {
+                formData.append('file', file, file.name); // 파일명만 전송
+            });
 
-            // webkitRelativePath가 있는 경우 경로를 추출
-            if (firstFile && firstFile.webkitRelativePath) {
-                const relativePath = firstFile.webkitRelativePath; // 상대 경로
-                const pathParts = relativePath.split('/'); // '/'로 분리
-                const folderPath = pathParts.slice(0, -1).join('/'); // 폴더 경로 추출
+            // 전송할 FormData 내용을 출력
+            for (let [key, value] of formData.entries()) {
+                console.log(`Key: ${key}, Filename: ${value.name}`);
+            }
 
-                setUploadFolder(folderPath); // 폴더 경로 상태 업데이트
-                console.log(`Uploading from folder: ${folderPath}`);
-            } else {
-                console.error("No valid folder path found in the first file.");
-                alert("폴더가 아닌 파일이 선택되었습니다. 올바른 폴더를 선택해 주세요.");
+            try {
+                // 서버에 파일 전송
+                const response = await axios.post('http://localhost:8080/api/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                console.log('Files uploaded successfully:', response.data);
+            } catch (error) {
+                console.error('Error uploading files:', error);
             }
         } else {
             console.warn("No files selected for upload.");
         }
 
-        // 모든 파일을 상태에 저장
-        setUploadedFiles(files); // 업로드된 파일들 상태를 한 번에 업데이트
-        console.log("Uploaded files state:", files); // 상태 업데이트 후 파일 로그
+        setUploadedFiles(files);
+        console.log("Uploaded files state:", files);
     };
 
     // 선택한 파일을 저장하는 함수
     const handleFileSelect = (file) => {
-        setSelectedFile(file); // 선택한 파일 업데이트
+        setSelectedFile(file);
         console.log("Selected file:", file);
     };
 
