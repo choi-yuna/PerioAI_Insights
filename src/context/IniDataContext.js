@@ -21,10 +21,12 @@ export const IniDataProvider = ({ children }) => {
       );
 
       if (iniFile) {
+        console.log("INI File found:", iniFile); // 확인용 로그
+
         // 서버에 INI 파일 전송 및 데이터 수신
         postIniFile(iniFile)
           .then((serverData) => {
-            setParsedData(serverData); // 받은 데이터를 parsedData로 저장하여 전역 상태로 사용 가능하게 설정
+            setParsedData(serverData);
             console.log("Received data:", serverData);
           })
           .catch((error) => {
@@ -35,6 +37,7 @@ export const IniDataProvider = ({ children }) => {
       }
     }
   }, [selectedFile, uploadedFiles]);
+
 
   return (
     <IniDataContext.Provider value={{ parsedData }}>
