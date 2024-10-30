@@ -36,25 +36,23 @@ const PeriodontalChart = () => {
     const createChartData = (isMaxillary) => {
       const labels = [];
       const bdData = [];
-      const cejData = [];
+      const cejDataPoints = [];
 
       const teethOrder = isMaxillary
         ? [11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27]
         : [31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47];
 
-      teethOrder.forEach((toothNum, index) => {
-        const bonePoints = parsedData.bonePoints[index] || [[0, 0]];
-        const cejPoints = parsedData.cejPoints[index] || [[0, 0]];
+      teethOrder.forEach((toothNum) => {
+        const bonePoints = parsedData.bonePointsByNum[toothNum] || [[0, 0]];
+        const cejPoints = parsedData.cejPointsByNum[toothNum] || [[0, 0]];
         const { minY, maxY } = parsedData.teethExtremes[toothNum] || { minY: 0, maxY: 1 };
 
-        // X축 레이블: Left, Center, Right 설정
         labels.push(`${toothNum}-Left`, `${toothNum}`, `${toothNum}-Right`);
 
-        // Y값을 0-2 범위로 변환하는 함수
         const transformY = (yValue) => {
           return isMaxillary
-            ? ((yValue - minY) / (maxY - minY)) * 2   // 상악: minY를 0, maxY를 2로 변환
-            : ((maxY - yValue) / (maxY - minY)) * 2;  // 하악: maxY를 0, minY를 2로 변환
+            ? ((yValue - minY) / (maxY - minY)) * 2
+            : ((maxY - yValue) / (maxY - minY)) * 2;
         };
 
         bdData.push(
@@ -62,7 +60,7 @@ const PeriodontalChart = () => {
           transformY(bonePoints[Math.floor(bonePoints.length / 2)]?.[1]),
           transformY(bonePoints[bonePoints.length - 1]?.[1])
         );
-        cejData.push(
+        cejDataPoints.push(
           transformY(cejPoints[0]?.[1]),
           transformY(cejPoints[Math.floor(cejPoints.length / 2)]?.[1]),
           transformY(cejPoints[cejPoints.length - 1]?.[1])
@@ -82,7 +80,7 @@ const PeriodontalChart = () => {
           },
           {
             label: 'CD (CEJ)',
-            data: cejData,
+            data: cejDataPoints,
             borderColor: 'red',
             borderWidth: 2,
             fill: false,
@@ -127,7 +125,7 @@ const PeriodontalChart = () => {
               },
               ticks: {
                 callback: (value, index) => {
-                  return index % 3 === 1 ? maxillaryData.labels[index] : ''; // Center 위치에만 치아 번호 표시
+                  return index % 3 === 1 ? maxillaryData.labels[index] : '';
                 },
               },
             },
@@ -164,7 +162,7 @@ const PeriodontalChart = () => {
               },
               ticks: {
                 callback: (value, index) => {
-                  return index % 3 === 1 ? mandibularData.labels[index] : ''; // Center 위치에만 치아 번호 표시
+                  return index % 3 === 1 ? mandibularData.labels[index] : '';
                 },
               },
             },
