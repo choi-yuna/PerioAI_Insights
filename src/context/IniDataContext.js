@@ -1,14 +1,12 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { UploadContext } from './UploadContext'; // UploadContext 임포트
-import { postIniFile, getToothData } from '../api/api'; // 서버 요청 함수 임포트
+import { UploadContext } from './UploadContext';
+import { postIniFile } from '../api/api';
 
-// Context 생성
 export const IniDataContext = createContext();
 
-// Provider를 생성하여 전역 상태를 관리
 export const IniDataProvider = ({ children }) => {
   const [parsedData, setParsedData] = useState(null);
-  const { selectedFile, uploadedFiles } = useContext(UploadContext); // UploadContext 데이터 사용
+  const { selectedFile, uploadedFiles } = useContext(UploadContext);
 
   // 선택된 파일 이름을 기준으로 INI 파일 찾기 및 서버 요청
   useEffect(() => {
@@ -22,17 +20,18 @@ export const IniDataProvider = ({ children }) => {
         file.name.endsWith('.ini') && file.name.includes(selectedFileName)
       );
 
-      if (iniFile && iniFile.file instanceof Blob) {
-        // 서버에 INI 파일 전송
-        postIniFile(iniFile.file)
-          .then(async () => {
-            // 서버에서 JSON 데이터 요청
-            const serverData = await getToothData();
-            setParsedData(serverData); // 서버 데이터를 parsedData로 설정
+      if (iniFile) {
+        // 서버에 INI 파일 전송 및 데이터 수신
+        postIniFile(iniFile)
+          .then((serverData) => {
+            setParsedData(serverData); // 받은 데이터를 parsedData로 저장하여 전역 상태로 사용 가능하게 설정
+            console.log("Received data:", serverData);
           })
           .catch((error) => {
             console.error("Error processing INI file:", error);
           });
+      } else {
+        console.warn("선택된 파일에 대한 INI 파일을 찾을 수 없습니다.");
       }
     }
   }, [selectedFile, uploadedFiles]);

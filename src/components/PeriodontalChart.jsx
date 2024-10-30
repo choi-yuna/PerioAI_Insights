@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import {
   Chart as ChartJS,
@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useIniDataContext } from '../context/IniDataContext';
+import { UploadContext } from '../context/UploadContext';
 
 ChartJS.register(
   LineElement,
@@ -27,6 +28,7 @@ ChartJS.register(
 
 const PeriodontalChart = () => {
   const { parsedData } = useIniDataContext();
+  const { uploadedFiles, handleFolderUpload, setSelectedFile } = useContext(UploadContext);
   const [maxillaryData, setMaxillaryData] = useState(null);
   const [mandibularData, setMandibularData] = useState(null);
 
