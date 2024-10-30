@@ -35,38 +35,41 @@ const PeriodontalChart = () => {
   useEffect(() => {
     if (!parsedData) return;
 
+    const normalizeData = (data) => {
+      return data.map((val) => {
+        if (val <= 0) return 0;
+        else if (val >= 500) return 2;
+        else return val / 250;
+      });
+    };
+
     const createChartData = (isMaxillary) => {
       const labels = [];
       const bdData = [];
       const cejDataPoints = [];
 
       const teethOrder = isMaxillary
-        ? [11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27]
+        ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
         : [31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47];
 
       teethOrder.forEach((toothNum) => {
-        const bonePoints = parsedData.bonePointsByNum[toothNum] || [[0, 0]];
-        const cejPoints = parsedData.cejPointsByNum[toothNum] || [[0, 0]];
-        const { minY, maxY } = parsedData.teethExtremes[toothNum] || { minY: 0, maxY: 1 };
+        const toothData = parsedData[toothNum];
 
-        labels.push(`${toothNum}-Left`, `${toothNum}`, `${toothNum}-Right`);
+        if (!toothData) {
+          console.warn(`Data for tooth number ${toothNum} not found.`);
+          return;
+        }
 
-        const transformY = (yValue) => {
-          return isMaxillary
-            ? ((yValue - minY) / (maxY - minY)) * 2
-            : ((maxY - yValue) / (maxY - minY)) * 2;
-        };
+        labels.push(`${toothNum}-L`, `${toothNum}-C`, `${toothNum}-R`);
 
-        bdData.push(
-          transformY(bonePoints[0]?.[1]),
-          transformY(bonePoints[Math.floor(bonePoints.length / 2)]?.[1]),
-          transformY(bonePoints[bonePoints.length - 1]?.[1])
-        );
-        cejDataPoints.push(
-          transformY(cejPoints[0]?.[1]),
-          transformY(cejPoints[Math.floor(cejPoints.length / 2)]?.[1]),
-          transformY(cejPoints[cejPoints.length - 1]?.[1])
-        );
+        const boneYPoints = toothData.adjustedBonePoints?.map((point) => point.y) || [0, 0, 0];
+        const cejYPoints = toothData.adjustedCejPoints?.map((point) => point.y) || [0, 0, 0];
+
+        const avgBoneY = boneYPoints.reduce((sum, y) => sum + y, 0) / boneYPoints.length;
+        const avgCejY = cejYPoints.reduce((sum, y) => sum + y, 0) / cejYPoints.length;
+
+        bdData.push(avgBoneY, avgBoneY, avgBoneY);
+        cejDataPoints.push(avgCejY, avgCejY, avgCejY);
       });
 
       return {
@@ -74,23 +77,27 @@ const PeriodontalChart = () => {
         datasets: [
           {
             label: 'BD (치조골)',
-            data: bdData,
+            data: normalizeData(bdData),
             borderColor: 'blue',
             borderWidth: 2,
             fill: false,
-            tension: 0.1,
+            tension: 0.4, // 곡선으로 보이게 설정
+            pointRadius: 0, // 점을 숨김
           },
           {
             label: 'CD (CEJ)',
-            data: cejDataPoints,
+            data: normalizeData(cejDataPoints),
             borderColor: 'red',
             borderWidth: 2,
             fill: false,
-            tension: 0.1,
+            tension: 0.4, // 곡선으로 보이게 설정
+            pointRadius: 0, // 점을 숨김
           },
         ],
       };
     };
+
+
 
     setMaxillaryData(createChartData(true));
     setMandibularData(createChartData(false));
@@ -112,12 +119,12 @@ const PeriodontalChart = () => {
               min: 0,
               max: 2,
               ticks: {
-                stepSize: 0.5,
+                stepSize: 1,
                 callback: (value) => `${value}`,
               },
               title: {
                 display: true,
-                text: 'Y축',
+                text: 'Y축 (CEJ/Bone)',
               },
             },
             x: {
@@ -127,7 +134,7 @@ const PeriodontalChart = () => {
               },
               ticks: {
                 callback: (value, index) => {
-                  return index % 3 === 1 ? maxillaryData.labels[index] : '';
+                  return maxillaryData.labels[index];
                 },
               },
             },
@@ -149,12 +156,12 @@ const PeriodontalChart = () => {
               min: 0,
               max: 2,
               ticks: {
-                stepSize: 0.5,
+                stepSize: 1,
                 callback: (value) => `${value}`,
               },
               title: {
                 display: true,
-                text: 'Y축',
+                text: 'Y축 (CEJ/Bone)',
               },
             },
             x: {
@@ -164,7 +171,7 @@ const PeriodontalChart = () => {
               },
               ticks: {
                 callback: (value, index) => {
-                  return index % 3 === 1 ? mandibularData.labels[index] : '';
+                  return mandibularData.labels[index];
                 },
               },
             },
@@ -183,8 +190,8 @@ const PeriodontalChart = () => {
 export default PeriodontalChart;
 
 const ChartsContainer = styled.div`
-  width: 70%;
-  height: 90%;
+  width: 80%;
+  height: 80%;
   margin: 0 auto;
   background-color: #f4f4f4;
   padding: 20px;
