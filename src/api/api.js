@@ -1,23 +1,23 @@
-// src/api/api.js
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080';
-
-// INI 파일을 서버에 업로드하고 분석 결과를 가져오는 함수
-export const postIniFile  = async (file) => {
-    const formData = new FormData();
-    formData.append('iniFile', file);
-
+export const postIniFile = async (iniFile) => {
     try {
-        const response = await axios.post(`${BASE_URL}/api/upload-ini`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+        const formData = new FormData();
+        formData.append("file", iniFile); // 서버가 요구하는 이름에 맞춰서 "file"로 지정합니다.
+
+        const response = await axios.post('http://localhost:8080/api/upload-ini', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data' // multipart 형식 설정
+            }
         });
+
         return response.data;
     } catch (error) {
-        console.error("파일 업로드 중 오류 발생:", error);
+        console.error("Error posting ini file:", error);
         throw error;
     }
 };
+
 
 //서버 응답
 export const getToothData = async () => {
