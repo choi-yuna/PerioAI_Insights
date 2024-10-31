@@ -138,7 +138,7 @@ const Container = styled.div`
   background-color: #fcfcfc;
   border-radius: 20px; 
   border: 3px solid #acacacc3;
-  margin-top: 20%;
+  margin-top: 4%;
 `;
 
 const Title = styled.h1`

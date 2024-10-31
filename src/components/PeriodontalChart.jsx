@@ -194,10 +194,10 @@ const PeriodontalChart = () => {
 export default PeriodontalChart;
 
 const ChartsContainer = styled.div`
-  width: 70%;
+  width: 60%;
   max-width: 1400px; 
-  height: 50%;
-  margin: 2% auto;
+  height: 30%;
+  margin: 1% auto;
 `;
 
 const ChartWrapper = styled.div`
@@ -212,6 +212,6 @@ const ChartWrapper = styled.div`
 
 const ChartTitle = styled.h2`
   text-align: center;
-  font-size: 1.5em;
+  font-size: 1.3em;
   margin: 20px 0;
 `;
