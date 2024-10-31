@@ -43,6 +43,7 @@ const TopBar = () => {
         <TopBarContainer>
             <TopBarLeft>
                 <Logo src={logo} alt="Logo" />
+                <Title>AI Dental and Periodontal Analyzer</Title> {/* 제목 추가 */}
             </TopBarLeft>
             <TopBarRight>
                 {/* 파일 업로드 버튼 */}
@@ -67,6 +68,7 @@ const TopBar = () => {
 
 export default TopBar;
 
+// 스타일 정의
 
 const TopBarContainer = styled.div`
     position: fixed;
@@ -93,6 +95,16 @@ const Logo = styled.img`
     height: 63px;
     margin-right: 10px;
     left: 26px;
+`;
+
+const Title = styled.h1`
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    margin: 0;
+    margin-left: 20px;
+    padding: 0;
+    font-family: 'Inter';
 `;
 
 const TopBarRight = styled.div`
