@@ -8,16 +8,14 @@ import { UploadContext } from '../../context/UploadContext';
 // cornerstone 및 wado-image-loader 설정
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-cornerstoneWADOImageLoader.configure({
-  beforeSend: function(xhr) {
-    xhr.setRequestHeader('Accept', 'multipart/related; type="application/dicom"');
-  }
-});
 
 function DicomViewer() {
   const { uploadedFiles, handleFileSelect, selectedFile } = useContext(UploadContext);
   const [errorMessage, setErrorMessage] = useState(null);
   const dicomElementRef = useRef(null);
+  const isDraggingRef = useRef(false); // 드래그 상태 확인
+  const lastMousePositionRef = useRef({ x: 0, y: 0 });
+  const initialScaleRef = useRef(1); // 초기 스케일 저장
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -32,30 +30,101 @@ function DicomViewer() {
 
   const loadDicomImage = async (fileObj) => {
     const file = fileObj.file;
-
+  
     if (!file) {
       console.error("File is undefined or invalid.");
       setErrorMessage("유효하지 않은 파일입니다.");
       return;
     }
-
+  
     setErrorMessage(null);
     const fileUrl = URL.createObjectURL(file);
     const imageId = `wadouri:${fileUrl}`;
-
+  
     try {
       const element = dicomElementRef.current;
-
+  
       // DICOM 이미지 로드
       const image = await cornerstone.loadImage(imageId);
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
-
+  
       handleFileSelect(file); // 선택한 파일 업데이트
+  
+      // 초기 스케일 저장 (최소 축소 크기 제한을 위함)
+      const initialViewport = cornerstone.getViewport(element);
+      initialScaleRef.current = initialViewport.scale;
+  
+      // 기본 DICOM 파일의 windowCenter와 windowWidth 적용
+      const currentViewport = cornerstone.getViewport(element);
+      currentViewport.voi.windowCenter = image.windowCenter; // 기본 밝기값 적용
+      currentViewport.voi.windowWidth = image.windowWidth; // 기본 콘트라스트값 적용
+      cornerstone.setViewport(element, currentViewport);
+  
     } catch (error) {
       console.error("Error loading DICOM image:", error);
       setErrorMessage("DICOM 파일을 불러오지 못했습니다.");
     }
+  };
+  
+  // 마우스 휠을 이용한 확대/축소 기능
+  const handleWheel = (event) => {
+    const element = dicomElementRef.current;
+    if (element) {
+      event.preventDefault();
+      const delta = event.deltaY < 0 ? 1.05 : 0.95; // 휠을 올리면 확대, 내리면 축소
+      const viewport = cornerstone.getViewport(element);
+
+      // 최소 축소 크기는 초기 스케일로 제한
+      const newScale = viewport.scale * delta;
+
+      if (newScale <= initialScaleRef.current) {
+        // 스케일이 초기 값 이하로 되면 리셋
+        cornerstone.reset(element);
+      } else {
+        // 스케일이 초기 값보다 크면 계속 확대/축소 적용
+        viewport.scale = newScale;
+        cornerstone.setViewport(element, viewport);
+      }
+    }
+  };
+
+  // 마우스 드래그 시작
+  const handleMouseDown = (event) => {
+    const element = dicomElementRef.current;
+    if (element) {
+      const viewport = cornerstone.getViewport(element);
+      // 확대된 상태에서만 드래그 시작
+      if (viewport.scale > initialScaleRef.current) {
+        isDraggingRef.current = true;
+        lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
+      }
+    }
+  };
+
+  // 마우스 드래그 중
+  const handleMouseMove = (event) => {
+    if (!isDraggingRef.current) return;
+
+    const element = dicomElementRef.current;
+    if (element) {
+      const viewport = cornerstone.getViewport(element);
+
+      const deltaX = event.clientX - lastMousePositionRef.current.x;
+      const deltaY = event.clientY - lastMousePositionRef.current.y;
+
+      viewport.translation.x += deltaX;
+      viewport.translation.y += deltaY;
+
+      cornerstone.setViewport(element, viewport);
+
+      lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
+    }
+  };
+
+  // 마우스 드래그 종료
+  const handleMouseUp = () => {
+    isDraggingRef.current = false;
   };
 
   // 선택한 파일이 있는 경우 자동으로 로드
@@ -68,22 +137,28 @@ function DicomViewer() {
     }
   }, [selectedFile, uploadedFiles]);
 
+  // 마우스 이벤트 리스너 추가
+  useEffect(() => {
+    const element = dicomElementRef.current;
+    if (element) {
+      element.addEventListener('wheel', handleWheel);
+      element.addEventListener('mousedown', handleMouseDown);
+      element.addEventListener('mousemove', handleMouseMove);
+      element.addEventListener('mouseup', handleMouseUp);
+      element.addEventListener('mouseleave', handleMouseUp);
+    }
+    return () => {
+      if (element) {
+        element.removeEventListener('wheel', handleWheel);
+        element.removeEventListener('mousedown', handleMouseDown);
+        element.removeEventListener('mousemove', handleMouseMove);
+        element.removeEventListener('mouseup', handleMouseUp);
+        element.removeEventListener('mouseleave', handleMouseUp);
+      }
+    };
+  }, []);
+
   const dicomFiles = uploadedFiles.filter(file => file.name.endsWith('.dcm'));
-
-  const handleSave = () => {
-    // 저장 기능 구현
-    console.log("Save functionality to be implemented");
-  };
-
-  const handleClose = () => {
-    // 닫기 기능 구현
-    console.log("Close functionality to be implemented");
-  };
-
-  const handleHelp = () => {
-    // 도움말 기능 구현
-    console.log("Help functionality to be implemented");
-  };
 
   return (
     <Container>
@@ -108,9 +183,9 @@ function DicomViewer() {
 
       <DicomViewerContainer>
         <ButtonContainer>
-          <ActionButton onClick={handleSave}>Save</ActionButton>
-          <ActionButton onClick={handleClose}>Close</ActionButton>
-          <ActionButton onClick={handleHelp}>영상제어 도움말</ActionButton>
+          <ActionButton onClick={() => console.log("Save functionality to be implemented")}>Save</ActionButton>
+          <ActionButton onClick={() => console.log("Close functionality to be implemented")}>Close</ActionButton>
+          <ActionButton onClick={() => console.log("Help functionality to be implemented")}>영상제어 도움말</ActionButton>
         </ButtonContainer>
         <DicomElement ref={dicomElementRef} />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -121,7 +196,8 @@ function DicomViewer() {
 
 export default DicomViewer;
 
-// styled-components 스타일 정의
+// 스타일 정의
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -131,21 +207,21 @@ const Container = styled.div`
 `;
 
 const FileListContainer = styled.div`
-  margin-right: 20px; /* 이미지 뷰와의 간격 */
+  margin-right: 20px;
   margin-top: 70px;
-  width: 200px; /* 고정 너비 */
+  width: 200px;
 `;
 
 const FileListTitle = styled.h2`
-  color: #ffffff; // 흰색 텍스트
-  background: #222; // 어두운 배경
+  color: #ffffff;
+  background: #222;
   padding: 10px;
   text-align: center;
-  margin-top: 40px; /* 아래쪽 마진 제거 */
+  margin-top: 40px;
   margin-bottom: 0px;
   border-bottom: 2px solid #444;
-  font-size: 14px; // 폰트 크기 증가
-  font-weight: bold; // 폰트 두께 조정
+  font-size: 14px;
+  font-weight: bold;
 `;
 
 const FileList = styled.ul`
@@ -153,74 +229,74 @@ const FileList = styled.ul`
   background: #333;
   color: #fff;
   height: 83%;
-  overflow-y: auto; /* 스크롤 가능하게 */
-  border-radius: 5px; /* 모서리 둥글게 */
-  font-size: 12px; // 폰트 크기 증가
-  margin: 0; /* 모든 방향의 마진 제거 */
+  overflow-y: auto;
+  border-radius: 5px;
+  font-size: 12px;
+  margin: 0;
 
-  /* 스크롤바 스타일 */
   &::-webkit-scrollbar {
-    width: 8px; /* 스크롤바 너비 줄임 */
+    width: 8px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #888; /* 스크롤바 색상 어둡게 */
-    border-radius: 3px; /* 스크롤바 모서리 둥글게 */
+    background-color: #888;
+    border-radius: 3px;
   }
   &::-webkit-scrollbar-track {
-    background-color: #333; /* 스크롤바 트랙 색상 */
+    background-color: #333;
   }
 `;
 
 const FileItem = styled.li`
   cursor: pointer;
   padding: 10px;
-  background-color: ${({ selected }) => (selected ? '#555' : '#444')}; // 선택된 경우 색상 변경
+  background-color: ${({ selected }) => (selected ? '#555' : '#444')};
   margin-bottom: 5px;
-  color: #ffffff; // 흰색 텍스트
-  transition: background-color 0.3s; /* 부드러운 호버 효과 */
+  color: #ffffff;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: #555; // 호버 시 배경색 변화
+    background-color: #555;
   }
 `;
 
 const NoFilesMessage = styled.p`
-  color: #ffffff; // 흰색 텍스트
-  text-align: center; // 중앙 정렬
+  color: #ffffff;
+  text-align: center;
 `;
 
 const DicomViewerContainer = styled.div`
-  flex: 2; /* 이미지 뷰의 크기 비율 */
+  flex: 2;
   text-align: center;
-  position: relative; /* DICOM 뷰어의 위치 조정 */
-  margin-top: 70px; /* 버튼과 뷰어 사이 여백 */
+  position: relative;
+  margin-top: 70px;
 `;
 
 const DicomElement = styled.div`
-  width: 90%; /* 전체 너비 */
-  height: 93%; /* 전체 높이 */
+  width: 90%;
+  height: 94%;
   background: black; 
-  margin: 10px 15px; /* 중앙 정렬 */
+  margin: 10px 15px;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end; /* 버튼을 오른쪽 정렬 */
-  margin-bottom: 10px; /* 버튼과 영상 뷰 사이 여백 */
-  margin-right : 9%;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-right: 9%;
 `;
 
 const ActionButton = styled.button`
-  background: #3b82f6; /* 버튼 배경색 */
-  color: white; /* 버튼 텍스트 색상 */
-  border: none; /* 테두리 제거 */
-  border-radius: 5px; /* 둥근 모서리 */
-  padding: 5px 10px; /* 버튼 크기 조정 */
-  margin: 0 5px; /* 버튼 간 간격 */
-  cursor: pointer; /* 커서 포인터 변경 */
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
 
   &:hover {
-    background: #2563eb; /* 호버 시 색상 변경 */
+    background: #2563eb;
   }
 `;
 
