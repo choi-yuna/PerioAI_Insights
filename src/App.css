@@ -1,7 +1,14 @@
+html, body {
+  background-color: #f0f0f0; /* Same color as .App background */
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensures full height coverage */
+}
+
 .App {
   text-align: center;
-  background-color: #f0f0f0; /* 원하는 색상으로 변경 */
-  min-height: 100vh; /* 전체 화면을 덮도록 설정 */
+  background-color: #f0f0f0; /* Keep this as a fallback */
+  min-height: 100vh; /* Covers initial viewport height */
 }
 
 .App-logo {

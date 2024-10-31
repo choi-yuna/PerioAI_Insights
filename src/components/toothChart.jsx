@@ -135,9 +135,10 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding: 0px 50px;
-  background-color: #faf8f8b5;
+  background-color: #fcfcfc;
   border-radius: 20px; 
   border: 3px solid #acacacc3;
+  margin-top: 20%;
 `;
 
 const Title = styled.h1`

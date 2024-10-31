@@ -25,4 +25,5 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 60vh;
+  margin-left: 10%;
 `;
