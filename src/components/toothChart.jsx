@@ -11,7 +11,7 @@ const toothImages = {
   "2": missingImage,   // 상실
   "3": implantImage,   // 임플란트
   "4": bridgeImage,    // 브릿지
-  "5": normalImage     // 기타
+  "5": missingImage     // 기타
 };
 
 const ToothChart = () => {
@@ -109,7 +109,7 @@ const getBorderColor = (status) => {
     case "2": return "#FF0000"; // 상실 
     case "3": return "#0000FF"; // 임플란트
     case "4": return "#FFA500"; // 브릿지 
-    case "5": return "#b8b800"; // 기타 
+    case "5": return "#FF0000"; // 기타 
     default: return "#000000";    
   }
 };
@@ -121,7 +121,7 @@ const getTextColor = (status) => {
     case "2": return "#FF0000"; 
     case "3": return "#0000FF"; 
     case "4": return "#FFA500";
-    case "5": return "#aaaa1d"; 
+    case "5": return "#FF0000"; 
     default: return "#000000"; 
   }
 };
@@ -138,7 +138,7 @@ const Container = styled.div`
   background-color: #fcfcfc;
   border-radius: 20px; 
   border: 3px solid #acacacc3;
-  margin-top: 4%;
+  margin-top: 10%;
 `;
 
 const Title = styled.h1`

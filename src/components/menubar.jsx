@@ -43,12 +43,6 @@ const MenuBar = ({ collapsed, setCollapsed }) => {
           >
             Analysis
           </MenuBtn>
-          <MenuBtn
-            active={activeButton === 'Diagnosis'}
-            onClick={() => handleButtonClick('Diagnosis', '/diagnosis')}
-          >
-            Diagnosis
-          </MenuBtn>
         </BtnCtn>
       </InnerContainer>
     </MenuBarContainer>
