@@ -3718,6 +3718,11 @@ builtin-modules@^3.1.0:
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-3.3.0.tgz#cae62812b89801e9656336e46223e030386be7b6"
   integrity sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==
 
+bulid@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/bulid/-/bulid-1.0.0.tgz#ca5e22f8e360dae0fafd0b96a3b696300d46e23c"
+  integrity sha512-DORsHOARN4ppjTJteOW2K6FwHOo9XUh3xuYkCj9qxxFa5sR/f8bJnSpLGv5qVB22YetYZa4+ZhK+y2MGA0qN7Q==
+
 bytes@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"

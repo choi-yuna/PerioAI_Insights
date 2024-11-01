@@ -23,7 +23,13 @@ function DicomViewer() {
     tla: true,
   });
   const dicomElementRef = useRef(null);
+  const viewerContainerRef = useRef(null);
   const [overlayImages, setOverlayImages] = useState([]);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const startPos = useRef({ x: 0, y: 0 });
+  const initialScale = 1; // 초기 스케일
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -49,12 +55,9 @@ function DicomViewer() {
 
     try {
       const element = dicomElementRef.current;
-
       const image = await cornerstone.loadImage(imageId);
       cornerstone.displayImage(element, image);
       cornerstone.reset(element);
-
-      const { width, height } = image;
 
       const pngFileName = file.name.replace('.dcm', '.png');
       const overlayPaths = {
@@ -85,17 +88,57 @@ function DicomViewer() {
     }
   }, [selectedFile, overlays]);
 
-  const handleSave = () => {
-    console.log("Save functionality to be implemented");
+  const handleWheel = (event) => {
+    setScale((prevScale) => {
+      const newScale = prevScale + event.deltaY * -0.001;
+      if (newScale <= initialScale) {
+        setPosition({ x: 0, y: 0 }); // 스케일이 최소값일 때 위치 초기화
+        return initialScale;
+      }
+      return newScale;
+    });
   };
 
-  const handleClose = () => {
-    console.log("Close functionality to be implemented");
+  const handleMouseDown = (event) => {
+    setIsDragging(true); // 드래그 시작
+    startPos.current = {
+      x: event.clientX - position.x,
+      y: event.clientY - position.y,
+    };
   };
 
-  const handleHelp = () => {
-    console.log("Help functionality to be implemented");
+  const handleMouseMove = (event) => {
+    if (!isDragging) return; // 드래그 상태가 아닐 때는 동작하지 않음
+  
+    const viewerBounds = viewerContainerRef.current.getBoundingClientRect();
+    const dicomBounds = dicomElementRef.current.getBoundingClientRect();
+  
+    // 이동 거리 계산
+    const newX = event.clientX - startPos.current.x;
+    const newY = event.clientY - startPos.current.y;
+  
+    // 이동 범위 제한 (컨테이너의 절반까지만 이동 가능)
+    const maxOffsetX = (dicomBounds.width * scale - viewerBounds.width) / 7;
+    const maxOffsetY = (dicomBounds.height * scale - viewerBounds.height) / 7;
+  
+    const boundedX = Math.max(Math.min(newX, maxOffsetX), -maxOffsetX);
+    const boundedY = Math.max(Math.min(newY, maxOffsetY), -maxOffsetY);
+  
+    setPosition({ x: boundedX, y: boundedY });
   };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false); // 드래그 종료
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
 
   return (
     <Container>
@@ -131,14 +174,30 @@ function DicomViewer() {
 
       <DicomViewerContainer>
         <ButtonContainer>
-          <ActionButton onClick={handleSave}>Save</ActionButton>
-          <ActionButton onClick={handleClose}>Close</ActionButton>
-          <ActionButton onClick={handleHelp}>영상제어 도움말</ActionButton>
+          <ActionButton onClick={() => console.log("Save functionality to be implemented")}>Save</ActionButton>
+          <ActionButton onClick={() => console.log("Close functionality to be implemented")}>Close</ActionButton>
+          <ActionButton onClick={() => console.log("Help functionality to be implemented")}>영상제어 도움말</ActionButton>
         </ButtonContainer>
-        <ViewerContainer>
-          <DicomElement ref={dicomElementRef} />
+        <ViewerContainer ref={viewerContainerRef}>
+          <DicomElement 
+            ref={dicomElementRef} 
+            style={{ 
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              cursor: isDragging ? 'grabbing' : 'grab',
+            }} 
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+          />
           {overlayImages.map((src, index) => (
-            <OverlayImage key={index} src={src} alt={`Overlay ${index}`} />
+            <OverlayImage 
+              key={index} 
+              src={src} 
+              alt={`Overlay ${index}`} 
+              style={{ 
+                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                pointerEvents: "none",
+              }} 
+            />
           ))}
         </ViewerContainer>
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -159,37 +218,39 @@ const Container = styled.div`
 `;
 
 const OverlayContainer = styled.div`
-  width: 200px; /* 너비 조정 */
-  margin-top: 87px; /* 상단 여백 */
+  width: 200px;
+  margin-top: 87px;
 `;
 
 const DicomViewerContainer = styled.div`
-  flex: 2; /* 이미지 뷰의 크기 비율 */
+  flex: 2;
   text-align: center;
-  margin-top: 70px; /* 버튼과 영상 뷰 사이 여백 */
+  margin-top: 70px;
 `;
 
 const ViewerContainer = styled.div`
-  position: relative; /* 자식 요소를 절대 위치로 설정하기 위한 기준 */
-  width: 89%; /* 전체 너비 */
-  height: 93%; /* 전체 높이 */
-  margin-left: 35px; /* 좌측 여백 조정 */
+  position: relative;
+  width: 89%;
+  height: 93%;
+  background: black;
+  margin-left: 35px;
+  overflow: hidden;
 `;
 
 const DicomElement = styled.div`
-  width: 100%; /* 전체 너비 */
-  height: 100%; /* 전체 높이 */
-  background: black; 
+  width: 100%;
+  height: 100%;
+  background: black;
 `;
 
 const OverlayImage = styled.img`
-  position: absolute; /* DICOM 이미지 위에 위치 */
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%; /* 전체 너비 */
-  height: 100%; /* 전체 높이 */
-  object-fit: contain; /* 이미지 비율 유지 */
-  pointer-events: none; /* 이미지 클릭 이벤트 비활성화 */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 `;
 
 const ErrorMessage = styled.p`
@@ -197,41 +258,41 @@ const ErrorMessage = styled.p`
 `;
 
 const OverlaySelection = styled.div`
-  background: #222; /* 배경색 설정 */
-  border-radius: 5px; /* 둥근 모서리 */
-  padding: 10px; /* 내부 여백 */
-  color: #fff; /* 텍스트 색상 */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* 그림자 효과 */
+  background: #222;
+  border-radius: 5px;
+  padding: 10px;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   margin-top: 20px;
 `;
 
 const OverlayOption = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 5px; /* 항목 간격 조정 */
+  margin-bottom: 5px;
   input[type='checkbox'] {
-    margin-right: 10px; /* 체크박스와 텍스트 간의 간격 조정 */
-    accent-color: #3b82f6; /* 체크박스 색상 */
+    margin-right: 10px;
+    accent-color: #3b82f6;
   }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end; /* 버튼을 오른쪽 정렬 */
-  margin-bottom: 10px; /* 버튼과 영상 뷰 사이 여백 */
-  margin-right : 9%;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-right: 9%;
 `;
 
 const ActionButton = styled.button`
-  background: #3b82f6; /* 버튼 배경색 */
-  color: white; /* 버튼 텍스트 색상 */
-  border: none; /* 테두리 제거 */
-  border-radius: 5px; /* 둥근 모서리 */
-  padding: 5px 10px; /* 버튼 크기 조정 */
-  margin: 0 5px; /* 버튼 간 간격 */
-  cursor: pointer; /* 커서 포인터 변경 */
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
 
   &:hover {
-    background: #2563eb; /* 호버 시 색상 변경 */
+    background: #2563eb;
   }
 `;
