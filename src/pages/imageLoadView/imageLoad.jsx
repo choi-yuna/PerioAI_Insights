@@ -16,6 +16,7 @@ function DicomViewer() {
   const isDraggingRef = useRef(false); // 드래그 상태 확인
   const lastMousePositionRef = useRef({ x: 0, y: 0 });
   const initialScaleRef = useRef(1); // 초기 스케일 저장
+  const [isDragging, setIsDragging] = useState(false); // 드래그 상태에 따라 마우스 커서 변경
 
   useEffect(() => {
     if (dicomElementRef.current) {
@@ -97,6 +98,7 @@ function DicomViewer() {
       // 확대된 상태에서만 드래그 시작
       if (viewport.scale > initialScaleRef.current) {
         isDraggingRef.current = true;
+        setIsDragging(true); // 커서를 grabbing으로 변경
         lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
       }
     }
@@ -125,6 +127,7 @@ function DicomViewer() {
   // 마우스 드래그 종료
   const handleMouseUp = () => {
     isDraggingRef.current = false;
+    setIsDragging(false); // 커서를 기본값으로 변경
   };
 
   // 선택한 파일이 있는 경우 자동으로 로드
@@ -187,7 +190,10 @@ function DicomViewer() {
           <ActionButton onClick={() => console.log("Close functionality to be implemented")}>Close</ActionButton>
           <ActionButton onClick={() => console.log("Help functionality to be implemented")}>영상제어 도움말</ActionButton>
         </ButtonContainer>
-        <DicomElement ref={dicomElementRef} />
+        <DicomElement 
+          ref={dicomElementRef} 
+          style={{ cursor: isDragging ? 'grabbing' : 'grab' }} 
+        />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </DicomViewerContainer>
     </Container>

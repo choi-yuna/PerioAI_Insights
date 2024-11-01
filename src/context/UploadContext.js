@@ -21,7 +21,6 @@ export const UploadProvider = ({ children }) => {
                 setUploadFolder(folderPath);
                 console.log(`Uploading from folder: ${folderPath}`);
             } else {
-                alert("폴더가 아닌 파일이 선택되었습니다. 올바른 폴더를 선택해 주세요.");
             }
         }
 

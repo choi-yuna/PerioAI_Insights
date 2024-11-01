@@ -38,8 +38,8 @@ const PeriodontalChart = () => {
     const normalizeData = (data) => {
       return data.map((val) => {
         if (val <= 0) return 0;
-        else if (val >= 300) return 2;
-        else return val / 150;
+        else if (val >= 500) return 2;
+        else return val / 250;
       });
     };
 
@@ -50,7 +50,7 @@ const PeriodontalChart = () => {
 
       const teethOrder = isMaxillary
         ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
-        : [38,37, 36, 35, 34, 33, 32, 31, 41, 42, 43, 44, 45, 46, 47,48];
+        : [48,47, 46, 45, 44, 43, 42, 41,31, 32, 33, 34, 35, 36, 37,38];
 
       teethOrder.forEach((toothNum) => {
         const toothData = parsedData[toothNum];
@@ -158,7 +158,6 @@ const PeriodontalChart = () => {
               y: {
                 min: 0,
                 max: 2,
-                reverse: true,
                 ticks: {
                   stepSize: 1,
                   callback: (value) => `${value}`,
@@ -213,6 +212,6 @@ const ChartWrapper = styled.div`
 
 const ChartTitle = styled.h2`
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.3em;
   margin: 20px 0;
 `;
