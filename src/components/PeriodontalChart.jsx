@@ -156,6 +156,7 @@ const PeriodontalChart = () => {
             aspectRatio: 3, // x축 길이를 늘리기 위해 가로 비율을 설정
             scales: {
               y: {
+                            reverse: true,
                 min: 0,
                 max: 2,
                 ticks: {
