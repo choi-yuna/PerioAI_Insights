@@ -125,7 +125,7 @@ const PeriodontalChart = () => {
           data={maxillaryData}
           options={{
             responsive: true,
-            aspectRatio: 3, // x축 길이를 늘리기 위해 가로 비율을 설정
+            aspectRatio: 4, // x축 길이를 늘리기 위해 가로 비율을 설정
             scales: {
               y: {
                 min: 0,
@@ -165,7 +165,7 @@ const PeriodontalChart = () => {
           data={mandibularData}
           options={{
             responsive: true,
-            aspectRatio: 3, // x축 길이를 늘리기 위해 가로 비율을 설정
+            aspectRatio: 4, // x축 길이를 늘리기 위해 가로 비율을 설정
             scales: {
               y: {
                 min: 0,
@@ -207,16 +207,17 @@ const PeriodontalChart = () => {
 export default PeriodontalChart;
 
 const ChartsContainer = styled.div`
-  width: 60%;
-  max-width: 1400px; 
+  width: 90%; 
+  max-width: 1800px; 
   height: 30%;
-  margin: 1% auto;
+  margin-top: 5%;
+  margin-right: 5%;
 `;
 
 const ChartWrapper = styled.div`
   background-color: #fcfcfc;
   width: 100%;
-  max-width: 1400px; 
+  max-width: 1800px; 
   padding: 20px;
   border-radius: 20px;
   margin-bottom: 20px; 
