@@ -66,18 +66,22 @@ const PeriodontalChart = () => {
     
         labels.push(`${toothNum}-L`, `${toothNum}-C`, `${toothNum}-R`);
     
-        const boneYPoints = toothData.adjustedBonePoints.map((point) => point?.y ?? null);
-        const cejYPoints = toothData.adjustedCejPoints.map((point) => point?.y ?? null);
-    
-        const avgBoneY = boneYPoints.some((y) => y !== null)
-          ? boneYPoints.reduce((sum, y) => (y !== null ? sum + y : sum), 0) / boneYPoints.filter((y) => y !== null).length
-          : null;
-        const avgCejY = cejYPoints.some((y) => y !== null)
-          ? cejYPoints.reduce((sum, y) => (y !== null ? sum + y : sum), 0) / cejYPoints.filter((y) => y !== null).length
-          : null;
-    
-        bdData.push(avgBoneY, avgBoneY, avgBoneY);
-        cejDataPoints.push(avgCejY, avgCejY, avgCejY);
+      // 치아 데이터 배열을 거리 값으로 매핑
+const boneDistances = toothData.adjustedBonePoints ?? [null, null];
+const cejDistances = toothData.adjustedCejPoints ?? [null, null];
+
+// 평균 계산 (거리 값이 null이 아닌 경우만 계산)
+const avgBoneY = boneDistances.some((distance) => distance !== null)
+  ? boneDistances.reduce((sum, distance) => (distance !== null ? sum + distance : sum), 0) / boneDistances.filter((distance) => distance !== null).length
+  : null;
+const avgCejY = cejDistances.some((distance) => distance !== null)
+  ? cejDistances.reduce((sum, distance) => (distance !== null ? sum + distance : sum), 0) / cejDistances.filter((distance) => distance !== null).length
+  : null;
+
+// 데이터 배열에 추가
+bdData.push(avgBoneY, avgBoneY, avgBoneY);
+cejDataPoints.push(avgCejY, avgCejY, avgCejY);
+
       });
     
       return {
