@@ -25,7 +25,7 @@ ChartJS.register(
   Legend
 );
 
-const PeriodontalChart = () => {
+const RBLChart = () => {
   const { parsedData } = useIniDataContext();
   const [maxillaryData, setMaxillaryData] = useState(null);
   const [mandibularData, setMandibularData] = useState(null);
@@ -106,7 +106,7 @@ const PeriodontalChart = () => {
           data={maxillaryData}
           options={{
             responsive: true,
-            aspectRatio: 3,
+            aspectRatio: 4,
             scales: {
               y: {
                 min: 0,
@@ -146,7 +146,7 @@ const PeriodontalChart = () => {
           data={mandibularData}
           options={{
             responsive: true,
-            aspectRatio: 3,
+            aspectRatio: 4,
             scales: {
               y: {
                 min: 0,
@@ -184,19 +184,20 @@ const PeriodontalChart = () => {
   );
 };
 
-export default PeriodontalChart;
+export default RBLChart;
 
 const ChartsContainer = styled.div`
-  width: 60%;
-  max-width: 1400px; 
+  width: 95%;
+  max-width: 1900px; 
   height: 30%;
-  margin: 1% auto;
+  margin-top: 3%;
+
 `;
 
 const ChartWrapper = styled.div`
   background-color: #fcfcfc;
-  width: 100%;
-  max-width: 1400px; 
+  width: 95%;
+  max-width: 1500px; 
   padding: 20px;
   border-radius: 20px;
   margin-bottom: 20px; 
