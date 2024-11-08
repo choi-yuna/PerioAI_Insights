@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import ToothChart from '../../components/toothChart';
 import PeriodontalChart from '../../components/PeriodontalChart';
-import RBLChart from '../../components/TlaChart'
-// import TlaChart from '../../components/TlaChart';
+import RBLChart from '../../components/RBLChart'
 
 const Analysis = () => {
   const [visibleCharts, setVisibleCharts] = useState({
     ToothChart: true,
     PeriodontalChart: true,
-    // TlaChart: true,
+    RBLChart: true,
   });
 
   const handleRadioChange = (chartName) => {
@@ -38,20 +37,19 @@ const Analysis = () => {
           />
           Periodontal Chart
         </label>
-        {/* <label>
+       <label>
           <input
-            type="radio"
-            checked={visibleCharts.TlaChart}
-            onChange={() => handleRadioChange('TlaChart')}
+            type="checkbox"
+            checked={visibleCharts.RBLChart}
+            onChange={() => handleRadioChange('RBLChart')}
           />
-          TLA Chart
-        </label> */}
+          RBL Chart
+        </label>
       </Sidebar>
       <Content>
         {visibleCharts.ToothChart && <ToothChart />}
         {visibleCharts.PeriodontalChart && <PeriodontalChart />}
-        {visibleCharts.PeriodontalChart && <RBLChart />}
-        {/* {visibleCharts.TlaChart && <TlaChart />} */}
+        {visibleCharts.RBLChart && <RBLChart />}
       </Content>
     </Container>
   );
