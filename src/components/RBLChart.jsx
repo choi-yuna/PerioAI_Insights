@@ -39,7 +39,7 @@ const RBLChart = () => {
         if (cej === null || bone === null) return null;
     
         // 차이 퍼센트 계산: ((CEJ 거리 - Bone 거리) / CEJ 거리) * 100
-        const percentageDifference = ((bone-cej) / cej) * 100;
+        const percentageDifference = Math.abs((cej-bone) / cej) * 100;
         return percentageDifference;
       });
     };
