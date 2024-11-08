@@ -25,55 +25,61 @@ ChartJS.register(
   Legend
 );
 
-const TlaChart = () => {
+const PeriodontalChart = () => {
   const { parsedData } = useIniDataContext();
-  const [tlaData, setTlaData] = useState(null);
+  const [maxillaryData, setMaxillaryData] = useState(null);
+  const [mandibularData, setMandibularData] = useState(null);
 
   useEffect(() => {
     if (!parsedData) return;
 
-    const normalizeTlaData = (data) => {
-      return data.map((val) => {
-        if (val === null) return null;
-        if (val <= 0) return null;
-        else if (val >= 500) return 2;
-        else return val / 250;
+    const normalizeCejBoneData = (cejDistances, boneDistances) => {
+      return cejDistances.map((cej, index) => {
+        const bone = boneDistances[index];
+        if (cej === null || bone === null) return null;
+    
+        // 차이 퍼센트 계산: ((CEJ 거리 - Bone 거리) / CEJ 거리) * 100
+        const percentageDifference = ((bone-cej) / cej) * 100;
+        return percentageDifference;
       });
     };
+    
 
-    const createTlaChartData = () => {
+    const createCejBoneChartData = (isMaxillary) => {
       const labels = [];
-      const tlaPoints = [];
+      const cejBonePoints = [];
 
-      const teethOrder = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28,
-                          48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
+      // 상악과 하악 치아 번호를 구분
+      const teethOrder = isMaxillary
+        ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
+        : [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
 
       teethOrder.forEach((toothNum) => {
         const toothData = parsedData[toothNum];
 
-        if (!toothData || !toothData.tlaPoints) {
+        if (!toothData || !toothData.adjustedCejPoints || !toothData.adjustedBonePoints) {
           labels.push(`${toothNum}-L`, `${toothNum}-C`, `${toothNum}-R`);
-          tlaPoints.push(null, null, null);
+          cejBonePoints.push(null, null, null);
           return;
         }
 
         labels.push(`${toothNum}-L`, `${toothNum}-C`, `${toothNum}-R`);
 
-        const tlaYPoints = toothData.tlaPoints.map((point) => point?.y ?? null);
-        const avgTlaY = tlaYPoints.some((y) => y !== null)
-          ? tlaYPoints.reduce((sum, y) => (y !== null ? sum + y : sum), 0) / tlaYPoints.filter((y) => y !== null).length
-          : null;
+        const cejDistances = toothData.adjustedCejPoints;
+        const boneDistances = toothData.adjustedBonePoints;
 
-        tlaPoints.push(avgTlaY, avgTlaY, avgTlaY);
+        // 거리값을 백분율로 변환
+        const percentages = normalizeCejBoneData(cejDistances, boneDistances);
+        cejBonePoints.push(...percentages);
       });
 
       return {
         labels,
         datasets: [
           {
-            label: 'TLA 선',
-            data: normalizeTlaData(tlaPoints),
-            borderColor: 'green',
+            label: ' RBL(%)',
+            data: cejBonePoints,
+            borderColor: 'blue',
             borderWidth: 2,
             fill: false,
             tension: 0.4,
@@ -84,33 +90,34 @@ const TlaChart = () => {
       };
     };
 
-    setTlaData(createTlaChartData());
+    setMaxillaryData(createCejBoneChartData(true));
+    setMandibularData(createCejBoneChartData(false));
   }, [parsedData]);
 
-  if (!tlaData) {
+  if (!maxillaryData || !mandibularData) {
     return <p>Loading chart...</p>;
   }
 
   return (
     <ChartsContainer>
       <ChartWrapper>
-        <ChartTitle>TLA Chart</ChartTitle>
+        <ChartTitle>Maxillary (상악) RBL (%) Chart</ChartTitle>
         <Line
-          data={tlaData}
+          data={maxillaryData}
           options={{
             responsive: true,
             aspectRatio: 3,
             scales: {
               y: {
                 min: 0,
-                max: 2,
+                max: 100, // % 기준 Y축 범위 조정
                 ticks: {
-                  stepSize: 1,
-                  callback: (value) => `${value}`,
+                  stepSize: 50,
+                  callback: (value) => `${value}%`,
                 },
                 title: {
                   display: true,
-                  text: 'Y축 (TLA)',
+                  text: 'Y축 (CEJ-Bone 거리 %)',
                 },
               },
               x: {
@@ -120,7 +127,47 @@ const TlaChart = () => {
                 },
                 ticks: {
                   callback: (value, index) => {
-                    return tlaData.labels[index];
+                    return maxillaryData.labels[index];
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: true,
+              },
+            },
+          }}
+        />
+      </ChartWrapper>
+      <ChartWrapper>
+        <ChartTitle>Mandibular (하악) RBL (%) Chart</ChartTitle>
+        <Line
+          data={mandibularData}
+          options={{
+            responsive: true,
+            aspectRatio: 3,
+            scales: {
+              y: {
+                min: 0,
+                max: 100, // % 기준 Y축 범위 조정
+                ticks: {
+                  stepSize: 50,
+                  callback: (value) => `${value}%`,
+                },
+                title: {
+                  display: true,
+                  text: 'Y축 (CEJ-Bone 거리 %)',
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: '치아 번호',
+                },
+                ticks: {
+                  callback: (value, index) => {
+                    return mandibularData.labels[index];
                   },
                 },
               },
@@ -137,7 +184,7 @@ const TlaChart = () => {
   );
 };
 
-export default TlaChart;
+export default PeriodontalChart;
 
 const ChartsContainer = styled.div`
   width: 60%;
