@@ -67,13 +67,13 @@ const PeriodontalChart = () => {
         labels.push(`${toothNum}-L`, `${toothNum}-C`, `${toothNum}-R`);
     
       // 치아 데이터 배열을 거리 값으로 매핑
-// 거리값을 배열에 추가 (왼쪽, 가운데, 오른쪽 순서로)
-const boneDistances = toothData.adjustedBonePoints ?? [null, null, null];
-const cejDistances = toothData.adjustedCejPoints ?? [null, null, null];
+        // 거리값을 배열에 추가 (왼쪽, 가운데, 오른쪽 순서로)
+        const boneDistances = toothData.adjustedBonePoints ?? [null, null, null];
+        const cejDistances = toothData.adjustedCejPoints ?? [null, null, null];
 
-// 데이터 배열에 각 거리값 추가
-bdData.push(...boneDistances);
-cejDataPoints.push(...cejDistances);
+        // 데이터 배열에 각 거리값 추가
+        bdData.push(...boneDistances);
+        cejDataPoints.push(...cejDistances);
 
       });
     

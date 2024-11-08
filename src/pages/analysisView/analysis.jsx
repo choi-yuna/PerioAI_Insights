@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import ToothChart from '../../components/toothChart';
 import PeriodontalChart from '../../components/PeriodontalChart';
+import RBLChart from '../../components/TlaChart'
 // import TlaChart from '../../components/TlaChart';
 
 const Analysis = () => {
@@ -49,6 +50,7 @@ const Analysis = () => {
       <Content>
         {visibleCharts.ToothChart && <ToothChart />}
         {visibleCharts.PeriodontalChart && <PeriodontalChart />}
+        {visibleCharts.PeriodontalChart && <RBLChart />}
         {/* {visibleCharts.TlaChart && <TlaChart />} */}
       </Content>
     </Container>
