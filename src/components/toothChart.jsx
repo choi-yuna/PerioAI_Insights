@@ -15,7 +15,7 @@ const toothImages = {
 };
 
 const ToothChart = () => {
-  const { uploadedFiles, selectedFile } = useContext(UploadContext); // 선택된 이미지 파일을 가져옴
+  const { uploadedFiles, selectedFile } = useContext(UploadContext); // 선택된 이미지 파일
   const [annotationData, setAnnotationData] = useState(null);
 
   // 선택된 이미지 파일 이름을 기반으로 JSON 파일 찾기
@@ -128,7 +128,7 @@ const getTextColor = (status) => {
 
 export default ToothChart;
 
-// 스타일 컴포넌트 정의
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;

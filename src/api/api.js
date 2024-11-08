@@ -1,10 +1,11 @@
 // src/api/postIniFile.js
 import axios from 'axios';
 
-export const postIniAndJsonFiles = async (iniFile, jsonFile) => {
+export const postIniAndJsonFiles = async (iniFile, jsonFile, dcmFile) => {
   const formData = new FormData();
   formData.append('iniFile', iniFile.file); // 서버의 @RequestParam("iniFile")과 이름을 맞춤
   formData.append('jsonFile', jsonFile.file); // 서버의 @RequestParam("jsonFile")과 이름을 맞춤
+  formData.append('dcmFile', dcmFile.file); // 서버의 @RequestParam("dcmFile")과 이름을 맞춤
 
   try {
     const response = await axios.post('http://localhost:8080/api/upload-ini-json', formData, {

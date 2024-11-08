@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   Chart as ChartJS,
@@ -126,7 +126,7 @@ const PeriodontalChart = () => {
             scales: {
               y: {
                 min: 0,
-                max: 2,
+                max: 10,
                 ticks: {
                   stepSize: 1,
                   callback: (value) => `${value}`,

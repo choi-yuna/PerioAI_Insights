@@ -26,12 +26,18 @@ export const IniDataProvider = ({ children }) => {
         file.name.endsWith('.json') && file.name.includes(selectedFileName)
       );
 
+      // dcmFile 파일 찾기
+      const dcmFile = uploadedFiles.find(file =>
+        file.name.endsWith('.dcm') && file.name.includes(selectedFileName)
+      );
+
       if (iniFile && jsonFile) {
         console.log("INI File found:", iniFile); // 확인용 로그
         console.log("JSON File found:", jsonFile); // 확인용 로그
+        console.log("dcm File found:", dcmFile);
 
         // 서버에 INI와 JSON 파일 전송 및 데이터 수신
-        postIniAndJsonFiles(iniFile, jsonFile)
+        postIniAndJsonFiles(iniFile, jsonFile, dcmFile)
           .then((serverData) => {
             setParsedData(serverData);
             console.log("Received data:", serverData);

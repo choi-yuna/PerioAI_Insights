@@ -255,7 +255,7 @@ const FileList = styled.ul`
 const FileItem = styled.li`
   cursor: pointer;
   padding: 10px;
-  background-color: ${({ selected }) => (selected ? '#555' : '#444')};
+  background-color: ${({ selected }) => (selected ? '#929292' : '#444')};
   margin-bottom: 5px;
   color: #ffffff;
   transition: background-color 0.3s;
