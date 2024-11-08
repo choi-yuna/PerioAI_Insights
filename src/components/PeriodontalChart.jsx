@@ -38,8 +38,8 @@ const PeriodontalChart = () => {
       return data.map((val) => {
         if (val === null) return null;
         if (val <= 0) return null;
-        else if (val >= 300) return 2;
-        else return val / 150;
+        else if (val >= 5) return 2;
+        else return val / 2.5;
       });
     };
     
@@ -126,7 +126,7 @@ const PeriodontalChart = () => {
             scales: {
               y: {
                 min: 0,
-                max: 10,
+                max: 5,
                 ticks: {
                   stepSize: 5,
                   callback: (value) => `${value}`,
@@ -166,7 +166,7 @@ const PeriodontalChart = () => {
             scales: {
               y: {
                 min: 0,
-                max: 10,
+                max: 5,
                 reverse: true,
                 ticks: {
                   stepSize: 5,
