@@ -128,7 +128,7 @@ const PeriodontalChart = () => {
                 min: 0,
                 max: 10,
                 ticks: {
-                  stepSize: 1,
+                  stepSize: 5,
                   callback: (value) => `${value}`,
                 },
                 title: {
@@ -166,10 +166,10 @@ const PeriodontalChart = () => {
             scales: {
               y: {
                 min: 0,
-                max: 2,
+                max: 10,
                 reverse: true,
                 ticks: {
-                  stepSize: 1,
+                  stepSize: 5,
                   callback: (value) => `${value}`,
                 },
                 title: {
