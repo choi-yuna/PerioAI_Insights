@@ -126,10 +126,15 @@ const PeriodontalChart = () => {
             scales: {
               y: {
                 min: 0,
-                max: 5,
+                max: 6,
                 ticks: {
-                  stepSize: 5,
-                  callback: (value) => `${value}`,
+                  stepSize: 3,
+                  callback: (value) => {
+                    if (value === 0) return '0';
+                    if (value === 3) return '1';
+                    if (value === 6) return '2';
+                    return null; 
+                  },
                 },
                 title: {
                   display: true,
@@ -162,15 +167,20 @@ const PeriodontalChart = () => {
           data={mandibularData}
           options={{
             responsive: true,
-            aspectRatio: 4, // x축 길이를 늘리기 위해 가로 비율을 설정
+            aspectRatio: 4, 
             scales: {
               y: {
                 min: 0,
-                max: 5,
+                max: 6,
                 reverse: true,
                 ticks: {
-                  stepSize: 5,
-                  callback: (value) => `${value}`,
+                  stepSize: 3,
+                  callback: (value) => {
+                    if (value === 0) return '0';
+                    if (value === 3) return '1';
+                    if (value === 6) return '2';
+                    return null; 
+                  },
                 },
                 title: {
                   display: true,
