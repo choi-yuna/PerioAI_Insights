@@ -71,7 +71,7 @@ const Sidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start; 
-  margin-left: 15%;
+  margin-left: 11%;
   margin-top: 10%;
   padding: 10px;
   border-right: 2px solid #ffffff;
