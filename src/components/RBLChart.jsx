@@ -83,7 +83,7 @@ const RBLChart = () => {
             borderWidth: 2,
             fill: false,
             tension: 0.4,
-            pointRadius: 0,
+            pointRadius: 1.5,
             spanGaps: false,
           },
         ],
