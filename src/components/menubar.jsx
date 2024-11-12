@@ -82,7 +82,7 @@ const MenuBarContainer = styled.div`
 `;
 
 const InnerContainer = styled.div`
-  width: 90%;
+  width: 88%;
   height: 75%;
   background-color: #e7e7e7;
   border-radius: 5px;
@@ -113,7 +113,7 @@ const ToggleIcon = styled.img`
 `;
 
 const MenuBtn = styled.button`
-  padding: 14% 15%;
+  padding: 11% 10%;
   font-size: 20px;
   border: 2px solid black; 
   background-color: ${(props) => (props.active ? '#777777' : '#071231')}; 
