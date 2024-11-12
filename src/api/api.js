@@ -1,6 +1,10 @@
 // src/api/postIniFile.js
 import axios from 'axios';
 
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL_INTERNAL || process.env.REACT_APP_API_URL_EXTERNAL || 'http://localhost:8080',
+});
+
 export const postIniAndJsonFiles = async (iniFile, jsonFile, dcmFile) => {
   const formData = new FormData();
   formData.append('iniFile', iniFile.file); // 서버의 @RequestParam("iniFile")과 이름을 맞춤
@@ -8,7 +12,7 @@ export const postIniAndJsonFiles = async (iniFile, jsonFile, dcmFile) => {
   formData.append('dcmFile', dcmFile.file); // 서버의 @RequestParam("dcmFile")과 이름을 맞춤
 
   try {
-    const response = await axios.post('http://localhost:8080/api/upload-ini-json', formData, {
+    const response = await apiClient.post('/api/upload-ini-json', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

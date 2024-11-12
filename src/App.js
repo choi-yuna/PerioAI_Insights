@@ -13,7 +13,7 @@ function App() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <Router>
+    <Router basename="/periodontal">
       <div className="App">
       <UploadProvider>
         <IniDataProvider>
