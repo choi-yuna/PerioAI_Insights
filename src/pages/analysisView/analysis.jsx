@@ -1,3 +1,20 @@
+/**
+ * 시스템명 : AI Dental and Periodontal Analyzer
+ * 세부업무구분명 : 메인화면 > Analysis 
+ * 화면명 : 데이터 분석 결과 화면 (치아 차트, 치주 차트, RBL 차트)
+ * 설명 : 선택된 파일의 분석 차트 화면
+ *
+ * 파일명 : analysis.jsx
+ * 작성자 : 박진우, 최윤아
+ * 작성일 : 2024. 11. 12.
+ * --------------------------------------------------------------------
+ * Modification Information
+ * --------------------------------------------------------------------
+ * 수정일               수정자            수정내용
+ * --------------------------------------------------------------------
+ * 2024. 11. 12.        최윤아           최초생성
+ */
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import ToothChart from '../../components/toothChart';
