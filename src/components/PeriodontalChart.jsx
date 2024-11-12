@@ -1,3 +1,20 @@
+/**
+ * 시스템명 : AI Dental and Periodontal Analyzer
+ * 세부업무구분명 : 메인화면 >  > PeriodontalChart
+ * 화면명 : 사이드 메뉴바 컴포넌트
+ * 설명 : imageLoad, detection, analysis 메뉴바
+ *
+ * 파일명 : PeriodontalChart.jsx
+ * 작성자 : 박진우, 최윤아
+ * 작성일 : 2024. 11. 12.
+ * --------------------------------------------------------------------
+ * Modification Information
+ * --------------------------------------------------------------------
+ * 수정일               수정자            수정내용
+ * --------------------------------------------------------------------
+ * 2024. 11. 12.        최윤아           최초생성
+ */
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {

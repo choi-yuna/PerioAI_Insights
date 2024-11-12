@@ -1,3 +1,19 @@
+/**
+ * 시스템명 : AI Dental and Periodontal Analyzer
+ * 세부업무구분명 : 전역 데이터 관리
+ * 설명 : 선택된 파일 이름을 기준으로 서버에 데이터 분석 요청
+ *
+ * 파일명 : IniDataProvider.js
+ * 작성자 : 박진우, 최윤아
+ * 작성일 : 2024. 11. 12.
+ * --------------------------------------------------------------------
+ * Modification Information
+ * --------------------------------------------------------------------
+ * 수정일               수정자            수정내용
+ * --------------------------------------------------------------------
+ * 2024. 11. 12.        최윤아           최초생성
+ */
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { UploadContext } from './UploadContext';
 import { postIniAndJsonFiles } from '../api/api';

@@ -1,3 +1,20 @@
+/**
+ * 시스템명 : AI Dental and Periodontal Analyzer
+ * 세부업무구분명 : 메인화면 > Detection 
+ * 화면명 : 검출 결과 확인 화면
+ * 설명 : 치아/치조골/CEJ level/TLA 검출 화면 (원영상 위에 선택된 검출결과를 overlay)
+ *
+ * 파일명 : detection.jsx
+ * 작성자 : 박진우, 최윤아
+ * 작성일 : 2024. 11. 12.
+ * --------------------------------------------------------------------
+ * Modification Information
+ * --------------------------------------------------------------------
+ * 수정일               수정자            수정내용
+ * --------------------------------------------------------------------
+ * 2024. 11. 12.        최윤아           최초생성
+ */
+
 import React, { useContext, useRef, useState, useEffect } from "react";
 import styled from 'styled-components';
 import cornerstone from "cornerstone-core";

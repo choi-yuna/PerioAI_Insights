@@ -1,3 +1,20 @@
+/**
+ * 시스템명 : AI Dental and Periodontal Analyzer
+ * 세부업무구분명 : 메인화면 > ImageLoad 
+ * 화면명 : Dicom 영상 open 화면
+ * 설명 : 영상과 라벨링 파일 쌍을 load 후 선택한 폴더 내에 영상 선택 
+ *
+ * 파일명 : imageLoad.jsx
+ * 작성자 : 박진우, 최윤아
+ * 작성일 : 2024. 11. 12.
+ * --------------------------------------------------------------------
+ * Modification Information
+ * --------------------------------------------------------------------
+ * 수정일               수정자            수정내용
+ * --------------------------------------------------------------------
+ * 2024. 11. 12.        최윤아           최초생성
+ */
+
 import React, { useContext, useRef, useState, useEffect } from "react";
 import styled from 'styled-components';
 import cornerstone from "cornerstone-core";
