@@ -17,7 +17,7 @@
 
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import logo from '../assets/images/fas-logo.svg';
+import logo from '../assets/images/logo.png';
 import fileUploadIcon from '../assets/images/file-upload.svg';
 import userIcon from '../assets/images/user.svg';
 import logoutIcon from '../assets/images/logout.svg';
@@ -59,7 +59,7 @@ const TopBar = () => {
     return (
         <TopBarContainer>
             <TopBarLeft>
-                <Logo src={logo} alt="Logo" />
+             <Logo src={logo} alt="Logo" /> 
                 <Title>AI Dental and Periodontal Analyzer</Title> {/* 제목 추가 */}
             </TopBarLeft>
             <TopBarRight>
